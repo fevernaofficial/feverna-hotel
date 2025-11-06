@@ -1,7 +1,7 @@
 export default function Lobby() {
   return (
     <main
-      className="relative min-h-screen bg-black text-fevernaGold flex flex-col items-center justify-center"
+      className="relative min-h-[90vh] bg-black text-fevernaGold flex flex-col items-center justify-center"
       style={{
         backgroundImage: "url('/images/lobby.png')",
         backgroundSize: "cover",
