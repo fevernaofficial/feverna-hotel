@@ -14,18 +14,36 @@ export default function Hallway0() {
       }}
     >
       <div className="text-center text-lg backdrop-blur-sm bg-black/50 p-6 rounded">
-        <p>Doors line the corridor, each whispering softly.</p>
+  <p>Doors line the corridor, each whispering softly.</p>
 
-        <a 
-          href="/hallway0/elevator" className="block mt-4 underline hover:text-white"
-        >
-          Take the Elevator
-        </a>
- 
-        <a href="/" className="block mt-4 underline hover:text-white">
-          Return to Lobby
-        </a>
-      </div>
+  <a href="/hallway0/boiler" className="block mt-4 underline hover:text-white">
+    Boiler Room
+  </a>
+  <a href="/hallway0/chapel" className="block mt-4 underline hover:text-white">
+    Chapel
+  </a>
+  <a href="/hallway0/courtyard" className="block mt-4 underline hover:text-white">
+    Courtyard
+  </a>
+  <a href="/hallway0/solarium" className="block mt-4 underline hover:text-white">
+    Solarium
+  </a>
+  <a href="/hallway0/ballroom" className="block mt-4 underline hover:text-white">
+    Ballroom
+  </a>
+
+  <a
+    href="/hallway0/elevator"
+    className="block mt-4 underline hover:text-white"
+  >
+    Take the Elevator
+  </a>
+
+  <a href="/" className="block mt-4 underline hover:text-white">
+    Return to Lobby
+  </a>
+</div>
+
     </main>
   );
 }
