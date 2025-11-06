@@ -15,6 +15,13 @@ export default function Hallway0() {
     >
       <div className="text-center text-lg backdrop-blur-sm bg-black/50 p-6 rounded">
         <p>Doors line the corridor, each whispering softly.</p>
+
+        <a 
+          href="/hallway0/elevator" className="block mt-4 underline hover:text-white"
+        >
+          Take the Elevator
+        </a>
+ 
         <a href="/" className="block mt-4 underline hover:text-white">
           Return to Lobby
         </a>
