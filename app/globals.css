@@ -124,12 +124,6 @@ main {
   justify-content: center;
   align-items: center;
 }
-
-/* --------- TEMP VISUAL DEBUG --------- */
-footer {
-  outline: 1px solid red !important;
-}
-
 /* ------------------ */
 /* FIXED POSITION PATCH */
 /* ------------------ */
