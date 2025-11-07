@@ -12,43 +12,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full w-full">
-      <body className="bg-black text-fevernaGold font-sans overflow-x-hidden min-h-screen flex flex-col justify-between">
-
-        {/* Page content */}
+    <html lang="en" suppressHydrationWarning>
+      {/* ✅ Move all structure inside real <body> */}
+      <body className="min-h-screen flex flex-col bg-black text-fevernaGold font-sans overflow-x-hidden">
         <main className="flex-grow flex flex-col justify-center items-center">
           {children}
         </main>
 
-        {/* Global footer (always visible) */}
-        <footer className="w-full h-6 flex items-center justify-center gap-8 text-[10px] text-fevernaGold/70 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm fade-in-soft">
-          <a
-            href="/about"
-            className="hover:text-fevernaGold transition drop-shadow-[0_0_4px_rgba(166,142,109,0.5)] hover:opacity-90"
-          >
-            About
-          </a>
-          <a
-            href="/caretaker"
-            className="hover:text-fevernaGold transition drop-shadow-[0_0_4px_rgba(166,142,109,0.5)] hover:opacity-90"
-          >
-            Caretaker
-          </a>
-          <a
-            href="/contact"
-            className="hover:text-fevernaGold transition drop-shadow-[0_0_4px_rgba(166,142,109,0.5)] hover:opacity-90"
-          >
-            Contact
-          </a>
-          <a
-            href="https://linktr.ee/fevernaofficial"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-fevernaGold transition drop-shadow-[0_0_4px_rgba(166,142,109,0.5)] hover:opacity-90"
-          >
-            Socials
-          </a>
-        </footer>
+<footer
+  className="fixed bottom-0 left-0 w-full h-8
+             flex items-center justify-center gap-10
+             text-[11px] text-fevernaGold/80
+             bg-[rgba(0,0,0,0.7)] backdrop-blur-sm
+             border-t border-fevernaGold/30
+             shadow-[0_-2px_10px_rgba(166,142,109,0.15)]
+             z-[9999] fade-in-soft"
+>
+  <a href="/about" className="hover:text-fevernaGold transition">About</a>
+  <a href="/caretaker" className="hover:text-fevernaGold transition">Caretaker</a>
+  <a href="/contact" className="hover:text-fevernaGold transition">Contact</a>
+  <a
+    href="https://linktr.ee/fevernaofficial"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:text-fevernaGold transition"
+  >
+    Socials
+  </a>
+</footer>
+
       </body>
     </html>
   );
