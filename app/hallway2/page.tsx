@@ -39,7 +39,7 @@ export default function Hallway2() {
         </a>
 
         <a
-          href="/hallway1/elevator"
+          href="/elevator"
           className="block mt-6 underline hover:text-white transition"
         >
           Return to Elevator
