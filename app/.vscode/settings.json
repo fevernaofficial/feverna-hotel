@@ -1,0 +1,33 @@
+{
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html",
+    "typescriptreact": "html",
+    "javascriptreact": "html"
+  },
+  "tailwindCSS.experimental.configFile": "tailwind.config.js",
+  "tailwindCSS.emmetCompletions": true,
+
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true,
+    "source.fixAll": "explicit"
+  },
+
+  "editor.colorDecorators": true,
+  "tailwindCSS.colorDecorators": true,
+
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true
+  }
+}

@@ -1,13 +1,13 @@
 export default function Lobby() {
   return (
-    <main
-      className="relative min-h-[90vh] bg-black flex flex-col items-center justify-center text-fevernaGold"
-      style={{
-        backgroundImage: "url('/images/lobby.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+<main
+  className="relative min-h-[calc(100vh-1.5rem)] flex flex-col items-center justify-center text-fevernaGold bg-black overflow-hidden"
+  style={{
+    backgroundImage: "url('/images/lobby.png')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  }}
+>
  
 <nav className="flex flex-col items-center gap-4 text-xl text-fevernaGold/90 fade-in-soft">
   <a

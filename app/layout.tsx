@@ -1,9 +1,9 @@
 import "./globals.css";
-import Link from "next/link";
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Hotel Feverna",
-  description: "An immersive world of music and myth.",
+  description: "Where beauty, ache, and memory intertwine.",
 };
 
 export default function RootLayout({
@@ -12,34 +12,43 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-black text-fevernaGold font-serif">
-        <div className="min-h-screen flex flex-col">
-          <main className="flex-grow">{children}</main>
-          <footer className="bg-black/70 text-sm text-center py-6 border-t border-fevernaGold/30">
-            <nav className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/about" className="hover:text-white transition">
-                About Feverna
-              </Link>
-              <Link href="/caretaker" className="hover:text-white transition">
-                The Caretaker
-              </Link>
-              <Link href="/contact" className="hover:text-white transition">
-                Contact
-              </Link>
-              <a
-                href="https://linktr.ee/fevernaofficial"
-                target="_blank"
-                className="hover:text-white transition"
-              >
-                Socials
-              </a>
-            </nav>
-            <p className="mt-3 opacity-60">
-              © {new Date().getFullYear()} Hotel Feverna
-            </p>
-          </footer>
-        </div>
+    <html lang="en" className="h-full w-full">
+      <body className="bg-black text-fevernaGold font-sans overflow-x-hidden min-h-screen flex flex-col justify-between">
+
+        {/* Page content */}
+        <main className="flex-grow flex flex-col justify-center items-center">
+          {children}
+        </main>
+
+        {/* Global footer (always visible) */}
+        <footer className="w-full h-6 flex items-center justify-center gap-8 text-[10px] text-fevernaGold/70 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm fade-in-soft">
+          <a
+            href="/about"
+            className="hover:text-fevernaGold transition drop-shadow-[0_0_4px_rgba(166,142,109,0.5)] hover:opacity-90"
+          >
+            About
+          </a>
+          <a
+            href="/caretaker"
+            className="hover:text-fevernaGold transition drop-shadow-[0_0_4px_rgba(166,142,109,0.5)] hover:opacity-90"
+          >
+            Caretaker
+          </a>
+          <a
+            href="/contact"
+            className="hover:text-fevernaGold transition drop-shadow-[0_0_4px_rgba(166,142,109,0.5)] hover:opacity-90"
+          >
+            Contact
+          </a>
+          <a
+            href="https://linktr.ee/fevernaofficial"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-fevernaGold transition drop-shadow-[0_0_4px_rgba(166,142,109,0.5)] hover:opacity-90"
+          >
+            Socials
+          </a>
+        </footer>
       </body>
     </html>
   );
