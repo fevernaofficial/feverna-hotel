@@ -8,6 +8,7 @@ export default function Lobby() {
         backgroundPosition: "center",
       }}
     >
+ 
 <nav className="flex flex-col items-center gap-4 text-xl text-fevernaGold/90 fade-in-soft">
   <a
     href="/hallway0"

@@ -24,8 +24,29 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Reset anchor tag colors so Tailwind can control them */
+a {
+  color: inherit;
+}
+
+
+/* ------------------ */
+/* FEVERNA COLORS     */
+/* ------------------ */
+
+/* Primary gold color */
 .text-fevernaGold {
-  color: var(--feverna-gold);
+  color: var(--feverna-gold) !important;
+}
+
+/* 90% opacity variant for subtle text (used in links) */
+.text-fevernaGold\/90 {
+  color: color-mix(in srgb, var(--feverna-gold) 90%, transparent) !important;
+}
+
+/* 60% opacity variant for muted secondary text */
+.text-fevernaGold\/60 {
+  color: color-mix(in srgb, var(--feverna-gold) 60%, transparent) !important;
 }
 
 /* ------------------ */
