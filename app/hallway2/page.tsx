@@ -6,7 +6,7 @@ export const metadata = {
 export default function Hallway2() {
   return (
     <main
-      className="min-h-screen flex items-end justify-center pb-10 text-fevernaGold"
+      className="relative h-[100svh] flex flex-col items-center justify-center text-fevernaGold bg-black overflow-hidden"
       style={{
         backgroundImage: "url('/images/hallway2.png')",
         backgroundSize: "cover",
@@ -14,7 +14,7 @@ export default function Hallway2() {
       }}
     >
       <div className="text-center text-lg backdrop-blur-sm bg-black/50 p-6 rounded">
-        <p>The air here feels charged — as though the walls remember songs.</p>
+        <p>The air here feels soft, as faint music seeps through the doors like memory.</p>
 
         <a href="/hallway2/thespark" className="block mt-4 underline hover:text-white">
           The Spark

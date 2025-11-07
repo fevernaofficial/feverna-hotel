@@ -6,7 +6,7 @@ export const metadata = {
 export default function Chapel() {
   return (
     <main
-      className="min-h-screen flex items-end justify-center pb-10 text-fevernaGold"
+      className="relative h-[100svh] flex flex-col items-center justify-center text-fevernaGold bg-black overflow-hidden"
       style={{
         backgroundImage: "url('/images/chapel.png')",
         backgroundSize: "cover",
