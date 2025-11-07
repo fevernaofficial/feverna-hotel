@@ -54,7 +54,7 @@ export default function Hallway0() {
             Ballroom
           </a>
           <a
-            href="/hallway0/elevator"
+            href="/elevator"
             className="mt-6 hover:text-white transition drop-shadow-[0_0_6px_rgba(166,142,109,0.8)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] animate-flicker delay-[6s]"
           >
             Elevator
