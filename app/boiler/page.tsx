@@ -19,7 +19,7 @@ const videos: RoomVideo[] = [
 export default function BoilerRoomPage() {
   return (
     <main
-      className="relative w-full min-h-screen flex items-center justify-center px-6 py-10"
+      className="relative w-full min-h-screen flex items-start justify-center px-6 pt-6 pb-24 sm:py-10"
       style={{
         backgroundImage: "url('/images/boiler.png')",
         backgroundSize: "cover",
@@ -30,7 +30,8 @@ export default function BoilerRoomPage() {
       <div className="absolute inset-0 bg-black/20" />
       <div className="absolute inset-0 bg-linear-to-b from-black/15 via-transparent to-black/35" />
 
-      <div className="relative z-10 w-full max-w-4xl bg-black/55 border border-white/10 rounded-xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft">
+      {/* Card becomes a bounded flex column so header/nav never clip */}
+      <div className="relative z-10 w-full max-w-4xl bg-black/55 border border-white/10 rounded-xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft flex flex-col max-h-[calc(100dvh-9rem)]">
         <header className="text-center">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-[0.22em] uppercase feverna-glow">
             Boiler Room
@@ -40,8 +41,8 @@ export default function BoilerRoomPage() {
           </p>
         </header>
 
-        {/* INTERNAL SCROLL AREA (prevents page scroll while allowing longer content) */}
-        <div className="mt-8 max-h-[calc(100vh-18rem)] overflow-y-auto pr-2">
+        {/* Scrollable content area */}
+        <div className="mt-8 flex-1 min-h-0 overflow-y-auto pr-2">
           <section className="space-y-6 text-sm md:text-base text-white/85 leading-relaxed">
             <div>
               <h2 className="text-xs uppercase tracking-[0.22em] text-white/70">
@@ -63,12 +64,12 @@ export default function BoilerRoomPage() {
               endurance tracks, and anything forged rather than performed.
             </p>
 
-            {/* breathing room at bottom so last line isn’t jammed against scrollbar */}
             <div className="h-6" />
           </section>
         </div>
 
-        <nav className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+        {/* Non-scrolling nav stays visible */}
+        <nav className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <Link
             href="/hallway0"
             className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm uppercase tracking-[0.18em]"
@@ -77,21 +78,12 @@ export default function BoilerRoomPage() {
           </Link>
 
           <Link
-            href="/chapel"
+            href="/"
             className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 hover:border-white/25 transition text-sm uppercase tracking-[0.18em]"
           >
-            Return to the Chapel
+            Back to Lobby
           </Link>
         </nav>
-
-        <div className="mt-6 text-center">
-          <Link
-            href="/"
-            className="text-xs uppercase tracking-[0.2em] text-white/55 hover:text-fevernaGold transition"
-          >
-            Back to the Lobby
-          </Link>
-        </div>
       </div>
     </main>
   );
