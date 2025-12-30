@@ -5,13 +5,13 @@ const videos: RoomVideo[] = [
   {
     id: "vYKheHUpudk",
     title: "Ashfall — Ritual Cut",
-    tag: "Annex",
+    tag: "Ground Floor",
     note: "A furnace hymn. Industrial ache. Endurance when warmth must be manufactured.",
   },
   {
     id: "y0QIQ2z6bl8",
     title: "Winter in My Bones",
-    tag: "Annex",
+    tag: "Ground Floor",
     note: "A cold-season refusal. The honest kind of quiet bitterness.",
   },
 ];
@@ -49,7 +49,7 @@ export default function BoilerRoomPage() {
                 Purpose
               </h2>
               <p className="mt-2 text-white/80">
-                This room belongs to the <span className="text-fevernaGold">Annex</span>—ground-floor spaces
+                This room belongs to the <span className="text-fevernaGold">Ground Floor</span>—ground-floor spaces
                 that hold experiments, side works, and pieces that don’t belong upstairs with the canon
                 guest rooms.
               </p>
@@ -68,7 +68,7 @@ export default function BoilerRoomPage() {
           </section>
         </div>
 
-        {/* Non-scrolling nav stays visible */}
+        {/* Navigation routes via hallway */}
         <nav className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <Link
             href="/hallway0"

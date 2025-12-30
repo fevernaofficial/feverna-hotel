@@ -6,7 +6,7 @@ export type RoomVideo = {
   id: string;       // YouTube video id
   title: string;
   note?: string;
-  tag?: "Annex" | "Canon" | "Passage" | "Relic";
+  tag?: "Ground Floor" | "Canon" | "Passage" | "Relic";
 };
 
 function YouTubeEmbed({ id, title }: { id: string; title: string }) {
