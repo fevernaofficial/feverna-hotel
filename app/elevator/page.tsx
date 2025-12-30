@@ -1,55 +1,130 @@
-export const metadata = {
-  title: "The Elevator | Hotel Feverna",
-  description: "A soft hum rises through the shaft. The lights flicker as you choose your destination.",
+import Link from "next/link";
+
+type Floor = {
+  code: "G" | "1" | "2";
+  label: string;
+  href: string;
+  note?: string;
 };
 
-export default function Elevator() {
+const FLOORS: Floor[] = [
+  {
+    code: "G",
+    label: "Ground Floor",
+    href: "/hallway0",
+    note: "Public rooms & worldbuilding",
+  },
+  {
+    code: "1",
+    label: "The Ache",
+    href: "/hallway1",
+    note: "Canon guest rooms (album floor)",
+  },
+  {
+    code: "2",
+    label: "Next Current",
+    href: "/hallway2",
+    note: "Second wing (in progress)",
+  },
+];
+
+export default function ElevatorPage() {
   return (
     <main
-      className="relative h-[100svh] flex flex-col items-center justify-center text-fevernaGold bg-black overflow-hidden"
+      className="relative w-full min-h-screen flex items-start justify-center px-6 pt-6 pb-24 sm:py-10"
       style={{
         backgroundImage: "url('/images/elevator.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      {/* Soft overlay for mood and readability */}
-      <div className="absolute inset-0 bg-[rgba(20,15,5,0.25)]" />
+      {/* Light overlay (let the image breathe; card handles readability) */}
+      <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/15 via-transparent to-black/35" />
 
-      {/* Main content */}
-      <div className="relative z-10 text-center fade-in-soft">
-        <h1 className="text-4xl font-serif mb-4 drop-shadow-[0_0_6px_rgba(166,142,109,0.8)]">
-          The Elevator
-        </h1>
-        <p className="mb-8 text-fevernaGold/80">
-          A soft hum rises through the shaft. The lights flicker as you choose your destination.
-        </p>
+      <div className="relative z-10 w-full max-w-3xl bg-black/55 border border-white/10 rounded-xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft flex flex-col max-h-[calc(100dvh-9rem)]">
+        <header className="text-center">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-[0.22em] uppercase feverna-glow">
+            Elevator
+          </h1>
+          <p className="mt-4 text-sm md:text-base text-white/80">
+            Choose a floor. The doors will not hurry for you.
+          </p>
+        </header>
 
-        <nav className="flex flex-col items-center gap-3 text-lg">
-          <a
+        <div className="mt-8 flex-1 min-h-0 overflow-y-auto pr-2">
+          <section className="space-y-6 text-sm md:text-base text-white/85 leading-relaxed">
+            <div>
+              <h2 className="text-xs uppercase tracking-[0.22em] text-white/70">
+                Floor Selector
+              </h2>
+              <p className="mt-2 text-white/80">
+                The <span className="text-fevernaGold">Ground Floor</span> holds the hotel’s public rooms.
+                Floors above begin the canon corridors.
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-white/10" />
+
+            <div className="grid gap-3">
+              {FLOORS.map((f) => (
+                <a
+                  key={f.code}
+                  href={f.href}
+                  className="group rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition px-4 py-3"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="shrink-0 w-10 h-10 rounded-md border border-white/15 bg-black/30 grid place-items-center">
+                      <span className="text-sm font-semibold tracking-[0.18em] text-white/85">
+                        {f.code}
+                      </span>
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-base md:text-lg text-white/90">
+                          {f.label}
+                        </span>
+                        <span className="text-xs uppercase tracking-[0.2em] text-white/55 group-hover:text-fevernaGold transition">
+                          Enter
+                        </span>
+                      </div>
+                      {f.note ? (
+                        <div className="mt-1 text-xs md:text-sm text-white/60">
+                          {f.note}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </a>
+              ))}
+
+            </div>
+
+            <div className="pt-4 border-t border-white/10" />
+
+            <p className="text-xs md:text-sm text-white/60">
+              Additional floors are sealed for now.
+            </p>
+
+            <div className="h-6" />
+          </section>
+        </div>
+
+        <nav className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+          <Link
             href="/hallway0"
-            className="hover:text-white transition feverna-glow animate-flicker delay-[0s]"
+            className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm uppercase tracking-[0.18em]"
           >
-            Ground Floor
-          </a>
-          <a
-            href="/hallway1"
-            className="hover:text-white transition feverna-glow animate-flicker delay-[1.2s]"
-          >
-            First Floor
-          </a>
-          <a
-            href="/hallway2"
-            className="hover:text-white transition feverna-glow animate-flicker delay-[2.4s]"
-          >
-            Second Floor
-          </a>
-          <a
+            Back to Ground Floor
+          </Link>
+
+          <Link
             href="/"
-            className="mt-6 text-sm hover:text-white/80 transition text-fevernaGold/60"
+            className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 hover:border-white/25 transition text-sm uppercase tracking-[0.18em]"
           >
-            Return to Lobby
-          </a>
+            Back to Lobby
+          </Link>
         </nav>
       </div>
     </main>
