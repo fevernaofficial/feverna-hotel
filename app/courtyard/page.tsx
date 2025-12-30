@@ -41,7 +41,7 @@ export default function CourtyardPage() {
                 Purpose
               </h2>
               <p className="mt-2 text-white/80">
-                The Courtyard belongs to the <span className="text-fevernaGold">Ground Floor</span>—ground-floor rooms
+                The Courtyard belongs to the <span className="text-fevernaGold">Ground Floor</span>— rooms
                 for installations, interludes, and one-off works. This wing is for pieces that loop well,
                 breathe slowly, and feel like presence rather than performance.
               </p>

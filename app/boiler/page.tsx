@@ -49,7 +49,7 @@ export default function BoilerRoomPage() {
                 Purpose
               </h2>
               <p className="mt-2 text-white/80">
-                This room belongs to the <span className="text-fevernaGold">Ground Floor</span>—ground-floor spaces
+                This room belongs to the <span className="text-fevernaGold">Ground Floor</span>—spaces
                 that hold experiments, side works, and pieces that don’t belong upstairs with the canon
                 guest rooms.
               </p>
