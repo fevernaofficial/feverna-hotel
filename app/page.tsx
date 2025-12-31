@@ -5,25 +5,17 @@ export default function Lobby() {
       style={{
         backgroundImage: "url('/images/lobby.png')",
         backgroundSize: "cover",
-        backgroundPosition: "center", // keep art centered; don't “slide” it around
+        backgroundPosition: "center",
       }}
     >
-      {/* Light overlays (preserve the art; improve legibility) */}
       <div className="absolute inset-0 bg-black/15" />
       <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/25" />
 
-      {/* Nav block: positioned in the “doorway” zone, below the baked FEVERNA text */}
       <nav
         aria-label="Lobby navigation"
-        className="
-          absolute left-1/2 -translate-x-1/2
-          w-full max-w-xs text-center
-          fade-in-soft
-          px-6
-        "
+        className="absolute left-1/2 -translate-x-1/2 w-full max-w-xs text-center fade-in-soft px-6"
         style={{ top: "320px" }}
->
-
+      >
         <div className="rounded-xl border border-white/10 bg-black/35 backdrop-blur-sm shadow-2xl px-6 py-6">
           <div className="flex flex-col items-center gap-4 text-lg text-fevernaGold/90">
             <a
