@@ -66,8 +66,13 @@ export default function GuestRegisterForm() {
         {status === "sending" ? "Submitting…" : "Submit"}
       </button>
 
+      {/* Tiny UX note (no email field; visitor can include it inside message if desired) */}
+      <p className="text-center text-[11px] text-white/55 leading-relaxed">
+        If you’d like a reply, include an email address inside your message.
+      </p>
+
       {status === "sent" && (
-        <p className="text-center text-xs text-white/65">
+        <p className="text-center text-xs text-white/70">
           Your entry has been delivered to the desk for approval.
         </p>
       )}
