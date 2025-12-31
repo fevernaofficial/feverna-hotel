@@ -26,7 +26,7 @@ body {
   margin: 0;
   padding: 0;
 
-  /* IMPORTANT: allow scrolling again */
+  /* IMPORTANT: allow vertical scroll again */
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -36,7 +36,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 
-  /* Make room for fixed footer (and mobile safe-area) */
+  /* Make room for the fixed footer + phone safe-area */
   padding-bottom: calc(var(--footer-h) + env(safe-area-inset-bottom));
 }
 
@@ -54,11 +54,11 @@ a {
 }
 
 .text-fevernaGold\/90 {
-  color: color-mix(in srgb, var(--feverna-gold) 90%, transparent) !important;
+  color: rgba(166, 142, 109, 0.9) !important;
 }
 
 .text-fevernaGold\/60 {
-  color: color-mix(in srgb, var(--feverna-gold) 60%, transparent) !important;
+  color: rgba(166, 142, 109, 0.6) !important;
 }
 
 /* ------------------ */
@@ -87,7 +87,7 @@ a {
   animation: flicker 4s infinite ease-in-out;
 }
 
-/* Animation delay utilities */
+/* Animation delay utilities for unsynchronized candle effect */
 .delay-\[1\.2s\] {
   animation-delay: 1.2s;
 }
@@ -111,10 +111,6 @@ a {
     filter: brightness(1);
   }
 }
-@keyframes signSway {
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(-1deg); }
-}
 
 .fade-in-soft {
   animation: fadeInSoft 2s ease-out forwards;
@@ -126,4 +122,42 @@ a {
 .feverna-glow {
   filter: drop-shadow(0 0 6px rgba(166, 142, 109, 0.8))
     drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+/* ------------------ */
+/* HANGING SIGN SWAY  */
+/* ------------------ */
+@keyframes signSway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(-1deg);
+  }
+}
+
+/* ------------------ */
+/* CANDLE DRIFT       */
+/* ------------------ */
+/* Subtle moving light leak: should be "felt" not noticed */
+@keyframes candleDrift {
+  0%,
+  100% {
+    transform: translate3d(-1%, -1%, 0) scale(1.02);
+  }
+  50% {
+    transform: translate3d(1%, 1%, 0) scale(1.02);
+  }
+}
+
+/* ------------------ */
+/* FIXED FOOTER       */
+/* ------------------ */
+footer {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0;
+  width: 100%;
+  z-index: 99999;
 }
