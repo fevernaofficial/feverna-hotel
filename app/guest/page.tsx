@@ -15,7 +15,7 @@ export default function GuestRegisterPage() {
         overflow-x-hidden
         bg-[url('/images/guest-register.png')]
         bg-no-repeat bg-cover
-        bg-[position:50%_50%]
+        bg-position-[50%_50%]
       "
     >
       {/* Light overlays (preserve the art; improve legibility) */}
