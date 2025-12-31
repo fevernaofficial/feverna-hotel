@@ -48,7 +48,7 @@ export default function Lobby() {
               <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-6 flex flex-col items-center">
                 <div className="h-3 w-px bg-fevernaGold/35" />
                 <div className="origin-top rounded-md border border-fevernaGold/30 bg-black/55 backdrop-blur-sm px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-fevernaGold/90 shadow-lg -rotate-3 animate-[signSway_6s_ease-in-out_infinite]">
-                  Closed for renovations
+                  Gift Shop Closed (for now)
                 </div>
               </div>
             </div>
