@@ -11,10 +11,11 @@ export default function GuestRegisterPage() {
   return (
     <main
       className="
-        relative w-full min-h-screen bg-black overflow-hidden
+        relative w-full min-h-screen bg-black
+        overflow-x-hidden
         bg-[url('/images/guest-register.png')]
-        bg-no-repeat bg-center bg-contain
-        md:bg-cover
+        bg-no-repeat bg-cover
+        bg-[position:50%_50%]
       "
     >
       {/* Light overlays (preserve the art; improve legibility) */}
@@ -24,11 +25,11 @@ export default function GuestRegisterPage() {
       {/* Visually-hidden heading (image already contains the title) */}
       <h1 className="sr-only">Guest Register</h1>
 
-      {/* Content: pushed below the baked-in title area, responsive across screens */}
+      {/* Content: pushed below baked-in title area */}
       <div
         className="relative z-10 w-full flex justify-center px-6"
         style={{
-          paddingTop: "clamp(140px, 22vh, 320px)",
+          paddingTop: "clamp(120px, 18vh, 300px)",
           paddingBottom: "clamp(48px, 8vh, 96px)",
         }}
       >
@@ -39,13 +40,6 @@ export default function GuestRegisterPage() {
             bg-black/40 backdrop-blur-sm shadow-2xl
             p-6 md:p-10
             fade-in-soft
-
-            /* Mobile: page scrolls normally */
-            overflow-visible
-
-            /* Desktop: keep card from getting too tall + allow internal scroll if needed */
-            md:max-h-[calc(100vh-6rem)]
-            md:overflow-y-auto
           "
         >
           <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -65,7 +59,7 @@ export default function GuestRegisterPage() {
                   “I wanted to be held a little bit longer.”
                 </p>
                 <p className="mt-2 text-sm text-white/65">
-                  — Abby, <span className="text-fevernaGold">Room 217</span>
+                  — Abby, <span className="text-fevernaGold">Solarium</span>
                 </p>
               </div>
 
