@@ -7,6 +7,9 @@
   --background: #ffffff;
   --foreground: #171717;
   --feverna-gold: #a68e6d;
+
+  /* footer is h-8 => 2rem (32px) */
+  --footer-h: 2rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,10 +19,25 @@
   }
 }
 
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  /* IMPORTANT: allow scrolling again */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+
+  /* Make room for fixed footer (and mobile safe-area) */
+  padding-bottom: calc(var(--footer-h) + env(safe-area-inset-bottom));
 }
 
 /* Reset anchor tag colors so Tailwind can control them */
@@ -27,22 +45,18 @@ a {
   color: inherit;
 }
 
-
 /* ------------------ */
 /* FEVERNA COLORS     */
 /* ------------------ */
 
-/* Primary gold color */
 .text-fevernaGold {
   color: var(--feverna-gold) !important;
 }
 
-/* 90% opacity variant for subtle text (used in links) */
 .text-fevernaGold\/90 {
   color: color-mix(in srgb, var(--feverna-gold) 90%, transparent) !important;
 }
 
-/* 60% opacity variant for muted secondary text */
 .text-fevernaGold\/60 {
   color: color-mix(in srgb, var(--feverna-gold) 60%, transparent) !important;
 }
@@ -51,11 +65,19 @@ a {
 /* FLICKER ANIMATION  */
 /* ------------------ */
 @keyframes flicker {
-  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+  0%,
+  18%,
+  22%,
+  25%,
+  53%,
+  57%,
+  100% {
     opacity: 1;
     filter: drop-shadow(0 0 6px rgba(166, 142, 109, 0.8));
   }
-  20%, 24%, 55% {
+  20%,
+  24%,
+  55% {
     opacity: 0.9;
     filter: drop-shadow(0 0 3px rgba(166, 142, 109, 0.4));
   }
@@ -65,7 +87,7 @@ a {
   animation: flicker 4s infinite ease-in-out;
 }
 
-/* Animation delay utilities for unsynchronized candle effect */
+/* Animation delay utilities */
 .delay-\[1\.2s\] {
   animation-delay: 1.2s;
 }
@@ -98,43 +120,6 @@ a {
 /* FEVERNA TEXT GLOW  */
 /* ------------------ */
 .feverna-glow {
-  filter:
-    drop-shadow(0 0 6px rgba(166, 142, 109, 0.8))
+  filter: drop-shadow(0 0 6px rgba(166, 142, 109, 0.8))
     drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
-/* ------------------ */
-/* LAYOUT CONSISTENCY */
-/* ------------------ */
-
-html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-/* ------------------ */
-/* FIXED POSITION PATCH */
-/* ------------------ */
-
-/* Let html/body truly fill the viewport
-   so fixed elements attach to window, not Next's wrapper */
-html,
-body,
-#__next {
-  height: 100%;
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* Explicitly anchor fixed elements to the real viewport */
-footer {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 0;
-  width: 100%;
-  z-index: 99999;
-}
-
