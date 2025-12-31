@@ -1,34 +1,54 @@
 export default function Lobby() {
   return (
-<main
-  className="relative min-h-[calc(100vh-1.5rem)] flex flex-col items-center justify-center text-fevernaGold bg-black overflow-hidden"
-  style={{
-    backgroundImage: "url('/images/lobby.png')",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-  }}
->
- 
-<nav className="flex flex-col items-center gap-4 text-xl text-fevernaGold/90 fade-in-soft">
-  <a
-    href="/hallway0"
-    className="hover:text-white transition text-center drop-shadow-[0_0_6px_rgba(166,142,109,0.8)] animate-flicker delay-[0s]"
-  >
-    To the Rooms
-  </a>
-  <a
-    href="/guest"
-    className="hover:text-white transition text-center drop-shadow-[0_0_6px_rgba(166,142,109,0.8)] animate-flicker delay-[1.2s]"
-  >
-    Guest Register
-  </a>
-  <a
-    href="/gift"
-    className="hover:text-white transition text-center drop-shadow-[0_0_6px_rgba(166,142,109,0.8)] animate-flicker delay-[2.4s]"
-  >
-    Gift Shop
-  </a>
-</nav>
+    <main
+      className="relative w-full min-h-screen flex items-center justify-center px-6 pb-24"
+      style={{
+        backgroundImage: "url('/images/lobby.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Light overlays (preserve the art; improve legibility) */}
+      <div className="absolute inset-0 bg-black/15" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/25" />
+
+      {/* Lowered so it doesn't sit on the baked-in FEVERNA text */}
+      <nav
+        aria-label="Lobby navigation"
+        className="relative z-10 w-full max-w-xs text-center fade-in-soft translate-y-16 sm:translate-y-14 md:translate-y-12 lg:translate-y-10"
+      >
+        <div className="rounded-xl border border-white/10 bg-black/35 backdrop-blur-sm shadow-2xl px-6 py-6">
+          <div className="flex flex-col items-center gap-4 text-lg text-fevernaGold/90">
+            <a
+              href="/hallway0"
+              className="w-full rounded-md px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition feverna-glow animate-flicker"
+              style={{ animationDelay: "0s" }}
+            >
+              To the Rooms
+            </a>
+
+            <a
+              href="/guest"
+              className="w-full rounded-md px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition feverna-glow animate-flicker"
+              style={{ animationDelay: "1.2s" }}
+            >
+              Guest Register
+            </a>
+
+            <a
+              href="/gift"
+              className="w-full rounded-md px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition feverna-glow animate-flicker"
+              style={{ animationDelay: "2.4s" }}
+            >
+              Gift Shop
+            </a>
+          </div>
+
+          <p className="mt-5 text-[11px] uppercase tracking-[0.22em] text-white/55">
+            Enter softly.
+          </p>
+        </div>
+      </nav>
     </main>
   );
 }
