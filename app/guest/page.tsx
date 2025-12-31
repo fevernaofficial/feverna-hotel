@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 export default function GuestRegisterPage() {
   return (
     <main
-      className="relative w-full min-h-screen bg-black overflow-hidden"
-      style={{
-        backgroundImage: "url('/images/guest-register.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+      className="
+        relative w-full min-h-screen bg-black overflow-hidden
+        bg-[url('/images/guest-register.png')]
+        bg-no-repeat bg-center bg-contain
+        md:bg-cover
+      "
     >
       {/* Light overlays (preserve the art; improve legibility) */}
       <div className="absolute inset-0 bg-black/20" />
@@ -28,7 +28,7 @@ export default function GuestRegisterPage() {
       <div
         className="relative z-10 w-full flex justify-center px-6"
         style={{
-          paddingTop: "clamp(180px, 28vh, 340px)",
+          paddingTop: "clamp(140px, 22vh, 320px)",
           paddingBottom: "clamp(48px, 8vh, 96px)",
         }}
       >
@@ -39,8 +39,13 @@ export default function GuestRegisterPage() {
             bg-black/40 backdrop-blur-sm shadow-2xl
             p-6 md:p-10
             fade-in-soft
-            max-h-[calc(100vh-6rem)]
-            overflow-y-auto
+
+            /* Mobile: page scrolls normally */
+            overflow-visible
+
+            /* Desktop: keep card from getting too tall + allow internal scroll if needed */
+            md:max-h-[calc(100vh-6rem)]
+            md:overflow-y-auto
           "
         >
           <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
