@@ -1,9 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import ContactForm from "../components/ContactForm";
+
+export const metadata: Metadata = {
+  title: "Contact | Hotel Feverna",
+  description: "Leave a note at the front desk—questions, collaborations, quiet words.",
+};
 
 export default function ContactPage() {
   return (
-    <main className="w-full min-h-screen flex items-center justify-center px-6 py-10">
-      <div className="w-full max-w-3xl bg-black/60 border border-white/10 rounded-xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft">
+    <main className="relative w-full min-h-screen flex items-center justify-center px-6 py-10 bg-black overflow-hidden">
+      {/* Subtle vignette / atmosphere (no background image needed) */}
+      <div className="absolute inset-0 bg-linear-to-b from-black/20 via-black/10 to-black/35" />
+
+      <div className="relative z-10 w-full max-w-3xl bg-black/60 border border-white/10 rounded-xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft">
         <header className="text-center">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-[0.22em] uppercase feverna-glow">
             Contact
@@ -15,28 +25,16 @@ export default function ContactPage() {
 
         <section className="mt-8 space-y-4 text-sm md:text-base text-white/85 leading-relaxed">
           <p>
-            If you’d like to reach the person behind Hotel Feverna, email is the
-            simplest path. Replies may be slow, but they are always read.
+            If you’d like to reach the person behind Hotel Feverna, the desk accepts messages here.
+            Replies may be slow, but they are always read.
           </p>
 
           <div className="pt-4 border-t border-white/10" />
 
-          <h2 className="text-xs uppercase tracking-[0.22em] text-white/70">
-            Email
-          </h2>
-
-          <p className="text-white/85">
-            <a
-              href="mailto:fevernaofficial@gmail.com"
-              className="hover:text-fevernaGold transition underline decoration-white/20 hover:decoration-fevernaGold/60 underline-offset-4"
-            >
-              fevernaofficial@gmail.com
-            </a>
-          </p>
+          <ContactForm />
 
           <p className="text-xs md:text-sm text-white/60">
-            If you’d rather speak where other guests linger, use the social links in
-            the footer.
+            If you’d rather speak where other guests linger, use the social links in the footer.
           </p>
         </section>
 
