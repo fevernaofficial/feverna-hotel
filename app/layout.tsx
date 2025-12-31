@@ -27,7 +27,7 @@ export default function RootLayout({
                        bg-[rgba(0,0,0,0.7)] backdrop-blur-sm
                        border-t border-fevernaGold/30
                        shadow-[0_-2px_10px_rgba(166,142,109,0.15)]
-                       z-[9999] fade-in-soft"
+                       z-9999 fade-in-soft"
             style={{ gap: "2rem", letterSpacing: "0.03em" }}
           >
             <Link href="/about" className="hover:text-fevernaGold transition">
