@@ -34,13 +34,24 @@ export default function Lobby() {
               Guest Register
             </a>
 
-            <a
-              href="/gift"
-              className="w-full rounded-md px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition feverna-glow animate-flicker"
-              style={{ animationDelay: "2.4s" }}
-            >
-              Gift Shop
-            </a>
+            {/* Gift Shop (with “closed” hanging sign) */}
+            <div className="relative w-full">
+              <a
+                href="/gift"
+                className="w-full rounded-md px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition feverna-glow animate-flicker"
+                style={{ animationDelay: "2.4s" }}
+              >
+                Gift Shop
+              </a>
+
+              {/* Hanging sign overlay (doesn't block clicks) */}
+              <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-6 flex flex-col items-center">
+                <div className="h-3 w-px bg-fevernaGold/35" />
+                <div className="origin-top rounded-md border border-fevernaGold/30 bg-black/55 backdrop-blur-sm px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-fevernaGold/90 shadow-lg -rotate-3 animate-[signSway_6s_ease-in-out_infinite]">
+                  Closed for renovations
+                </div>
+              </div>
+            </div>
           </div>
 
           <p className="mt-5 text-[11px] uppercase tracking-[0.22em] text-white/55">
