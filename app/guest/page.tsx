@@ -1,33 +1,96 @@
-export const metadata = {
+import type { Metadata } from "next";
+import Link from "next/link";
+import GuestRegisterForm from "../components/GuestRegisterForm";
+
+export const metadata: Metadata = {
   title: "Guest Register | Hotel Feverna",
-  description: "Messages and notes from those who passed through.",
+  description: "Leave a name, a room, a memory. The desk will review your entry.",
 };
 
-export default function GuestRegister() {
+export default function GuestRegisterPage() {
   return (
     <main
-      className="relative h-[100svh] flex flex-col items-center justify-center text-fevernaGold bg-black overflow-hidden"
+      className="relative w-full min-h-screen bg-black overflow-hidden"
       style={{
         backgroundImage: "url('/images/guest-register.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="bg-black/60 p-8 rounded text-center max-w-md">
-        <h2 className="text-2xl mb-4 font-serif">Guest Register</h2>
-        <p className="mb-2">Send your message to the Caretaker:</p>
-        <a
-          href="mailto:fevernaofficial@gmail.com"
-          className="underline hover:text-white"
+      {/* Light overlays (preserve the art; improve legibility) */}
+      <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/30" />
+
+      {/* Visually-hidden heading (image already contains the title) */}
+      <h1 className="sr-only">Guest Register</h1>
+
+      {/* Content: pushed below the baked-in title area, responsive across screens */}
+      <div
+        className="relative z-10 w-full flex justify-center px-6"
+        style={{
+          paddingTop: "clamp(180px, 28vh, 340px)",
+          paddingBottom: "clamp(48px, 8vh, 96px)",
+        }}
+      >
+        <div
+          className="
+            w-full max-w-5xl
+            rounded-2xl border border-white/10
+            bg-black/40 backdrop-blur-sm shadow-2xl
+            p-6 md:p-10
+            fade-in-soft
+            max-h-[calc(100vh-6rem)]
+            overflow-y-auto
+          "
         >
-          fevernaofficial@gmail.com
-        </a>
-        <p className="mt-6 text-sm text-neutral-400">
-          Selected entries may appear here after review.
-        </p>
-        <a href="/" className="block mt-6 underline hover:text-white">
-          Return to Lobby
-        </a>
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            {/* Left: myth + sample entry */}
+            <div className="rounded-xl border border-white/10 bg-black/35 p-6">
+              <h2 className="text-xs uppercase tracking-[0.22em] text-white/70">
+                A note from the desk
+              </h2>
+
+              <p className="mt-3 text-sm text-white/80 leading-relaxed">
+                Leave a name if you wish. Leave a room if you have one. Leave a memory if you can’t carry it
+                alone. Some entries are kept. Some are returned to the guest.
+              </p>
+
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <p className="text-sm text-white/75 italic leading-relaxed">
+                  “I wanted to be held a little bit longer.”
+                </p>
+                <p className="mt-2 text-sm text-white/65">
+                  — Abby, <span className="text-fevernaGold">Room 217</span>
+                </p>
+              </div>
+
+              <p className="mt-6 text-xs text-white/55">
+                (Entries appear in time, once the ink dries.)
+              </p>
+            </div>
+
+            {/* Right: the form */}
+            <div className="rounded-xl border border-white/10 bg-black/35 p-6">
+              <GuestRegisterForm />
+
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <Link
+                  href="/"
+                  className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm uppercase tracking-[0.18em] border border-white/15 bg-white/5 hover:bg-white/10 transition"
+                >
+                  Lobby
+                </Link>
+
+                <Link
+                  href="/hallway0"
+                  className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm uppercase tracking-[0.18em] border border-white/15 hover:border-white/25 transition"
+                >
+                  Rooms
+                </Link>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   );
