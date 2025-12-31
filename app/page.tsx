@@ -1,21 +1,27 @@
 export default function Lobby() {
   return (
     <main
-      className="relative w-full min-h-screen flex items-center justify-center px-6 pb-24"
+      className="relative w-full min-h-screen bg-black overflow-hidden"
       style={{
         backgroundImage: "url('/images/lobby.png')",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "center", // keep art centered; don't “slide” it around
       }}
     >
       {/* Light overlays (preserve the art; improve legibility) */}
       <div className="absolute inset-0 bg-black/15" />
       <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/25" />
 
-      {/* Lowered so it doesn't sit on the baked-in FEVERNA text */}
+      {/* Nav block: positioned in the “doorway” zone, below the baked FEVERNA text */}
       <nav
         aria-label="Lobby navigation"
-        className="relative z-10 w-full max-w-xs text-center fade-in-soft translate-y-16 sm:translate-y-14 md:translate-y-12 lg:translate-y-10"
+        className="
+          absolute left-1/2 -translate-x-1/2
+          top-[58%] sm:top-[60%] md:top-[58%] lg:top-[56%]
+          w-full max-w-xs text-center
+          fade-in-soft
+          px-6
+        "
       >
         <div className="rounded-xl border border-white/10 bg-black/35 backdrop-blur-sm shadow-2xl px-6 py-6">
           <div className="flex flex-col items-center gap-4 text-lg text-fevernaGold/90">
