@@ -17,12 +17,13 @@ export default function Lobby() {
         aria-label="Lobby navigation"
         className="
           absolute left-1/2 -translate-x-1/2
-          top-[58%] sm:top-[60%] md:top-[58%] lg:top-[56%]
           w-full max-w-xs text-center
           fade-in-soft
           px-6
         "
-      >
+        style={{ top: "320px" }}
+>
+
         <div className="rounded-xl border border-white/10 bg-black/35 backdrop-blur-sm shadow-2xl px-6 py-6">
           <div className="flex flex-col items-center gap-4 text-lg text-fevernaGold/90">
             <a
