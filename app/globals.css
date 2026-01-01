@@ -22,7 +22,6 @@
 /* ------------------ */
 /* LAYOUT CONSISTENCY */
 /* ------------------ */
-
 html,
 body {
   height: 100%;
@@ -43,7 +42,6 @@ body {
   min-height: 100%;
 }
 
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -61,7 +59,6 @@ a {
 /* ------------------ */
 /* FEVERNA COLORS     */
 /* ------------------ */
-
 .text-fevernaGold {
   color: var(--feverna-gold) !important;
 }
@@ -76,6 +73,7 @@ a {
 
 /* ------------------ */
 /* FLICKER ANIMATION  */
+/* (kept for rare uses) */
 /* ------------------ */
 @keyframes flicker {
   0%,
@@ -100,13 +98,32 @@ a {
   animation: flicker 4s infinite ease-in-out;
 }
 
-/* Animation delay utilities for unsynchronized candle effect */
-.delay-\[1\.2s\] {
-  animation-delay: 1.2s;
+/* ------------------ */
+/* TEXT-ONLY FLICKER  */
+/* ------------------ */
+@keyframes textFlicker {
+  0%,
+  18%,
+  22%,
+  25%,
+  53%,
+  57%,
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 6px rgba(166, 142, 109, 0.55),
+      0 0 14px rgba(166, 142, 109, 0.28);
+  }
+  20%,
+  24%,
+  55% {
+    opacity: 0.88;
+    text-shadow: 0 0 3px rgba(166, 142, 109, 0.35),
+      0 0 8px rgba(166, 142, 109, 0.18);
+  }
 }
 
-.delay-\[2\.4s\] {
-  animation-delay: 2.4s;
+.animate-flicker-text {
+  animation: textFlicker 4s infinite ease-in-out;
 }
 
 /* ------------------ */
@@ -138,6 +155,24 @@ a {
 }
 
 /* ------------------ */
+/* FEVERNA BUTTON     */
+/* ------------------ */
+.feverna-btn {
+  background: rgba(0, 0, 0, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.feverna-btn:hover {
+  background: rgba(0, 0, 0, 0.58);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.feverna-btn:focus-visible {
+  outline: 2px solid rgba(166, 142, 109, 0.55);
+  outline-offset: 2px;
+}
+
+/* ------------------ */
 /* HANGING SIGN SWAY  */
 /* ------------------ */
 @keyframes signSway {
@@ -153,7 +188,6 @@ a {
 /* ------------------ */
 /* CANDLE DRIFT       */
 /* ------------------ */
-/* Subtle moving light leak: should be "felt" not noticed */
 @keyframes candleDrift {
   0%,
   100% {
@@ -163,6 +197,7 @@ a {
     transform: translate3d(1%, 1%, 0) scale(1.02);
   }
 }
+
 /* ------------------ */
 /* MICRO FADE-IN      */
 /* ------------------ */
@@ -194,9 +229,9 @@ footer {
 
 /* Hide scrollbars but keep scrolling (for cards) */
 .no-scrollbar {
-  scrollbar-width: none;        /* Firefox */
-  -ms-overflow-style: none;     /* IE/Edge legacy */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
 }
 .no-scrollbar::-webkit-scrollbar {
-  display: none;                /* Chrome/Safari */
+  display: none; /* Chrome/Safari */
 }

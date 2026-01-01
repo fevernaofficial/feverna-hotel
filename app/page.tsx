@@ -1,48 +1,70 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Lobby | Hotel Feverna",
+  description: "Enter softly. Speak to the desk, wander the ground floor, or sign the register.",
+};
+
+const lobbyLinks = [
+  { href: "/desk", label: "Approach the Desk", delay: "0s" },
+  { href: "/hallway0", label: "Wander the Ground Floor", delay: "1.2s" },
+  { href: "/guest", label: "Guest Register", delay: "2.4s" },
+] as const;
+
 export default function Lobby() {
   return (
-    <main
-      className="relative w-full min-h-screen bg-black overflow-hidden"
-      style={{
-        backgroundImage: "url('/images/lobby.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="absolute inset-0 bg-black/15" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/25" />
+    <main className="relative w-full min-h-screen bg-black overflow-hidden">
+      {/* Background image */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: "url('/images/lobby-16x9.webp')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
 
+      {/* Keep these LIGHT (the image already has haze) */}
+      <div className="absolute inset-0 bg-black/0" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/5 via-transparent to-black/10" />
+
+      {/* Navigation block */}
       <nav
         aria-label="Lobby navigation"
-        className="absolute left-1/2 -translate-x-1/2 w-full max-w-xs text-center fade-in-soft px-6"
-        style={{ top: "320px" }}
+        className="absolute left-1/2 top-[48%] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm px-6 fade-in-soft"
       >
-        <div className="rounded-xl border border-white/10 bg-black/35 backdrop-blur-sm shadow-2xl px-6 py-6">
-          <div className="flex flex-col items-center gap-4 text-lg text-fevernaGold/90">
-            <a
-              href="/hallway0"
-              className="w-full rounded-md px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition feverna-glow animate-flicker"
-              style={{ animationDelay: "0s" }}
-            >
-              To the Rooms
-            </a>
-
-            <a
-              href="/guest"
-              className="w-full rounded-md px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition feverna-glow animate-flicker"
-              style={{ animationDelay: "1.2s" }}
-            >
-              Guest Register
-            </a>
+        <div className="rounded-2xl border border-white/15 bg-black/45 backdrop-blur-md shadow-2xl px-6 py-6">
+          <div className="flex flex-col items-center gap-3 text-fevernaGold/90">
+            {lobbyLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="w-full rounded-md px-4 py-3 feverna-btn transition text-center"
+              >
+                <span
+                  className="animate-flicker-text feverna-glow"
+                  style={{ animationDelay: item.delay }}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            ))}
 
             {/* Gift Shop (with “closed” hanging sign) */}
             <div className="relative w-full">
-              <a
+              <Link
                 href="/gift"
-                className="w-full rounded-md px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition feverna-glow animate-flicker"
-                style={{ animationDelay: "2.4s" }}
+                className="w-full block rounded-md px-4 py-3 feverna-btn transition text-center"
               >
-                Gift Shop
-              </a>
+                <span
+                  className="animate-flicker-text feverna-glow"
+                  style={{ animationDelay: "3.6s" }}
+                >
+                  Gift Shop
+                </span>
+              </Link>
 
               {/* Hanging sign overlay (doesn't block clicks) */}
               <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-6 flex flex-col items-center">
@@ -54,7 +76,7 @@ export default function Lobby() {
             </div>
           </div>
 
-          <p className="mt-5 text-[11px] uppercase tracking-[0.22em] text-white/55">
+          <p className="mt-5 text-center text-[11px] uppercase tracking-[0.22em] text-white/55">
             Enter softly.
           </p>
         </div>
