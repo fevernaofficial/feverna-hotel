@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "The front desk is quiet. Leave a note, or sign the register.",
 };
 
-const deskLinks = [
+const LINKS = [
   { href: "/contact", label: "Leave a Note", delay: "0s" },
   { href: "/guest", label: "Sign the Register", delay: "1.2s" },
   { href: "/hallway0", label: "Wander the Ground Floor", delay: "2.4s" },
@@ -26,25 +26,26 @@ export default function DeskPage() {
         }}
       />
 
-      {/* Keep overlays subtle */}
+      {/* Keep overlays subtle (image already has atmosphere) */}
       <div className="absolute inset-0 bg-black/0" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/5 via-transparent to-black/10" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/5 via-transparent to-black/12" />
 
       {/* Navigation block */}
       <nav
         aria-label="Desk navigation"
-        className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm px-6 fade-in-soft"
+        className="absolute left-1/2 top-[37%] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm px-6 fade-in-soft"
       >
-        <div className="rounded-2xl border border-white/12 bg-black/42 backdrop-blur-md shadow-2xl px-6 py-6">
-          <div className="flex flex-col items-center gap-3 text-fevernaGold/90">
-            {deskLinks.map((item) => (
+        <div className="rounded-2xl border border-white/15 bg-black/55 backdrop-blur-md shadow-2xl px-6 py-6">
+          <div className="flex flex-col items-center gap-3">
+            {LINKS.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className="w-full rounded-md px-4 py-3 feverna-btn transition text-center"
               >
+                {/* Text-only flicker */}
                 <span
-                  className="animate-flicker-text feverna-glow"
+                  className="animate-flicker-text feverna-glow text-fevernaGold/90"
                   style={{ animationDelay: item.delay }}
                 >
                   {item.label}
@@ -54,7 +55,7 @@ export default function DeskPage() {
 
             <Link
               href="/"
-              className="w-full rounded-md px-4 py-3 feverna-btn transition text-center uppercase tracking-[0.18em] text-xs text-white/80"
+              className="w-full rounded-md px-4 py-3 border border-white/15 bg-black/60 hover:bg-black/70 hover:border-white/25 transition text-center uppercase tracking-[0.18em] text-xs text-white/80"
             >
               Back to the Lobby
             </Link>
