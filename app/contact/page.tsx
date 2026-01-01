@@ -10,30 +10,30 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main
-      className="relative w-full min-h-screen bg-black overflow-hidden"
+      className="relative w-full h-svh bg-black overflow-hidden"
       style={{
         backgroundImage: "url('/images/contact.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      {/* Light overlays (preserve the art; improve legibility) */}
+      {/* overlays */}
       <div className="absolute inset-0 bg-black/20" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/35" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/15 via-transparent to-black/35" />
 
-      {/* Content wrapper */}
-      <div className="relative z-10 w-full flex justify-center px-6 py-10 pb-24">
+      {/* content */}
+      <div className="relative z-10 w-full h-full flex items-center justify-center px-6">
         <div
           className="
             w-full max-w-3xl
-            bg-black/60 border border-white/10
-            rounded-xl p-6 md:p-10
-            shadow-2xl backdrop-blur-sm
-            fade-in-soft
-            max-h-[calc(100dvh-9rem)]
+            bg-black/60 border border-white/10 rounded-xl
+            shadow-2xl backdrop-blur-sm fade-in-soft
+            p-6 md:p-10
+            max-h-[calc(100svh-var(--footer-h)-2.5rem)]
             overflow-y-auto
+            no-scrollbar
           "
-        >
+>
           <header className="text-center">
             <h1 className="text-3xl md:text-4xl font-semibold tracking-[0.22em] uppercase feverna-glow">
               Contact

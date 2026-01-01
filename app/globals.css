@@ -19,6 +19,10 @@
   }
 }
 
+/* ------------------ */
+/* LAYOUT CONSISTENCY */
+/* ------------------ */
+
 html,
 body {
   height: 100%;
@@ -26,10 +30,19 @@ body {
   margin: 0;
   padding: 0;
 
-  /* IMPORTANT: allow vertical scroll again */
+  /* Kill page scroll (we scroll inside cards instead) */
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
+
+  /* Prevent iOS/Android bounce */
+  overscroll-behavior: none;
 }
+
+#__next {
+  height: 100%;
+  min-height: 100%;
+}
+
 
 body {
   background: var(--background);
@@ -177,4 +190,13 @@ footer {
   left: 0;
   width: 100%;
   z-index: 99999;
+}
+
+/* Hide scrollbars but keep scrolling (for cards) */
+.no-scrollbar {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE/Edge legacy */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;                /* Chrome/Safari */
 }
