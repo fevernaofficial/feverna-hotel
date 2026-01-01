@@ -9,6 +9,9 @@ export default function ContactForm() {
   const [error, setError] = useState("");
   const [showFallback, setShowFallback] = useState(false);
 
+  // Delayed “reply may arrive…” line after success
+  const [showReplyNote, setShowReplyNote] = useState(false);
+
   const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
@@ -18,10 +21,22 @@ export default function ContactForm() {
     if (ts) ts.value = String(Date.now());
   }, []);
 
+  // When status becomes "sent", reveal the reply note after 2 seconds.
+  useEffect(() => {
+    if (status !== "sent") {
+      setShowReplyNote(false);
+      return;
+    }
+
+    const t = window.setTimeout(() => setShowReplyNote(true), 2000);
+    return () => window.clearTimeout(t);
+  }, [status]);
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("sending");
     setError("");
+    setShowReplyNote(false);
 
     const formEl = e.currentTarget;
     const formData = new FormData(formEl);
@@ -108,9 +123,18 @@ export default function ContactForm() {
         </button>
 
         {status === "sent" && (
-          <p className="text-center text-xs text-white/65">
-            Your note has been delivered to the desk.
-          </p>
+          <div className="text-center space-y-1">
+            <p className="fade-in-quick text-[11px] uppercase tracking-[0.18em] text-white/45">
+                Delivered to the desk. Replies may arrive from FevernaOfficial.
+            </p>
+
+
+            {showReplyNote && (
+              <p className="fade-in-quick text-[11px] uppercase tracking-[0.18em] text-white/45">
+                Replies may arrive from FevernaOfficial.
+              </p>
+            )}
+          </div>
         )}
 
         {status === "error" && (
