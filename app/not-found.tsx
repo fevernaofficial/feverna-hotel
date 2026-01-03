@@ -16,13 +16,13 @@ export default function NotFound() {
         backgroundPosition: "center",
       }}
     >
-      {/* Soft overlays for readability */}
-      <div className="absolute inset-0 bg-black/25" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/15 via-transparent to-black/35" />
+      {/* Soft overlays for readability (never block clicks) */}
+      <div className="absolute inset-0 pointer-events-none bg-black/25" />
+      <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-black/15 via-transparent to-black/35" />
 
       {/* Optional: subtle “candle drift” (felt, not noticed) */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-20"
+        className="absolute inset-0 pointer-events-none opacity-20"
         style={{
           background:
             "radial-gradient(600px 420px at 20% 25%, rgba(166,142,109,0.35), transparent 60%), radial-gradient(520px 380px at 85% 70%, rgba(166,142,109,0.18), transparent 60%)",
@@ -43,7 +43,7 @@ export default function NotFound() {
       >
         <header className="text-center">
           <h1 className="text-3xl md:text-5xl font-semibold tracking-[0.22em] uppercase feverna-glow">
-            Not Found
+            Sealed Door
           </h1>
           <p className="mt-4 text-sm md:text-base text-white/80">
             This door is not on any map. The key turns—but nothing opens.
@@ -59,29 +59,30 @@ export default function NotFound() {
         </div>
 
         <nav className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm uppercase tracking-[0.18em]"
-          >
+          <Link href="/" className="feverna-btn w-full sm:w-auto text-center">
             Back to Lobby
           </Link>
 
           <Link
             href="/hallway0"
-            className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 hover:border-white/25 transition text-sm uppercase tracking-[0.18em]"
+            className="feverna-btn w-full sm:w-auto text-center"
           >
             To the Rooms
           </Link>
-        <Link
-        href="/contact"
-        className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 hover:border-white/25 transition text-sm uppercase tracking-[0.18em]"
-        >
-        Notify the Caretaker
-        </Link>
+
+          <Link
+            href="/contact"
+            className="feverna-btn w-full sm:w-auto text-center"
+          >
+            Notify the Caretaker
+          </Link>
         </nav>
+
         <p className="mt-4 text-center text-xs text-white/60">
-            If this passage should exist, leave a note at the desk and I’ll mark the corridor.
-            </p>
+          If this passage should exist, leave a note at the desk and I’ll mark the
+          corridor.
+        </p>
+
         <p className="mt-6 text-center text-[11px] uppercase tracking-[0.22em] text-white/55">
           Enter softly.
         </p>
