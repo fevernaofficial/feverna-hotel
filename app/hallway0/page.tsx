@@ -45,16 +45,16 @@ type Door = (typeof DOORS)[number];
 export default function Hallway0() {
   return (
     <main
-      className="relative w-full min-h-screen flex items-start justify-center px-6 pt-6 pb-24 sm:py-10"
+      className="relative w-full min-h-screen flex items-start justify-center px-6 pt-6 pb-24 sm:py-10 overflow-hidden"
       style={{
-        backgroundImage: "url('/images/hallway0.png')",
+        backgroundImage: "url('/images/hallway0.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
       {/* Soft overlays for readability */}
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/30" />
+      <div className="absolute inset-0 pointer-events-none bg-black/20" />
+      <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-black/10 via-transparent to-black/30" />
 
       {/* Candle drift: subtle moving warm light leak */}
       <div
@@ -66,7 +66,7 @@ export default function Hallway0() {
         "
       />
 
-      <div className="relative z-10 w-full max-w-xl bg-black/55 border border-white/10 rounded-xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft flex flex-col max-h-[calc(100dvh-9rem)]">
+      <div className="relative z-10 w-full max-w-xl bg-black/55 border border-white/10 rounded-2xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft flex flex-col max-h-[calc(100dvh-9rem)]">
         <header className="text-center">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-[0.22em] uppercase feverna-glow">
             The Ground Floor
@@ -88,7 +88,11 @@ export default function Hallway0() {
               <Link
                 key={door.href}
                 href={door.href}
-                className="group block rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition px-4 py-3"
+                className="
+                  group block rounded-lg border border-white/10
+                  bg-white/5 hover:bg-white/10 hover:border-white/20
+                  transition px-4 py-3
+                "
               >
                 <div className="flex items-baseline justify-between gap-4">
                   <span
@@ -102,7 +106,12 @@ export default function Hallway0() {
                   <span className="inline-flex items-center gap-2">
                     <span className="sr-only">Enter</span>
                     <span
-                      className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-white/10 bg-black/25 text-fevernaGold/70 group-hover:text-fevernaGold group-hover:border-white/20 transition animate-flicker"
+                      className="
+                        inline-flex items-center justify-center w-7 h-7 rounded-full
+                        border border-white/10 bg-black/25
+                        text-fevernaGold/70 group-hover:text-fevernaGold group-hover:border-white/20
+                        transition animate-flicker
+                      "
                       style={{ animationDelay: door.delay }}
                     >
                       <KeyRound className="w-4 h-4" aria-hidden="true" />
@@ -121,16 +130,13 @@ export default function Hallway0() {
         </div>
 
         <nav className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm uppercase tracking-[0.18em]"
-          >
+          <Link href="/" className="feverna-btn w-full sm:w-auto text-center">
             Back to Lobby
           </Link>
 
           <Link
             href="/elevator"
-            className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 hover:border-white/25 transition text-sm uppercase tracking-[0.18em]"
+            className="feverna-btn w-full sm:w-auto text-center"
           >
             Take the Elevator
           </Link>

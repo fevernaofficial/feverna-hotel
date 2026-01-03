@@ -1,9 +1,14 @@
+// app/caretaker/page.tsx
 import Link from "next/link";
 
 export default function CaretakerPage() {
   return (
-    <main className="w-full min-h-screen flex items-center justify-center px-6 py-10">
-      <div className="w-full max-w-3xl bg-black/60 border border-white/10 rounded-xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft">
+    <main className="relative w-full min-h-screen flex items-center justify-center px-6 py-10 overflow-hidden bg-black">
+      {/* Deliberate “document room” background (no image needed) */}
+      <div className="absolute inset-0 bg-[radial-gradient(900px_650px_at_50%_30%,rgba(166,142,109,0.10),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.85),rgba(0,0,0,0.92))]" />
+
+      <div className="relative z-10 w-full max-w-3xl bg-black/60 border border-white/10 rounded-2xl p-6 md:p-10 shadow-2xl backdrop-blur-sm fade-in-soft">
         <header className="text-center">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-[0.22em] uppercase feverna-glow">
             The Caretaker
@@ -53,17 +58,11 @@ export default function CaretakerPage() {
         </section>
 
         <nav className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-          <Link
-            href="/hallway0"
-            className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm uppercase tracking-[0.18em]"
-          >
+          <Link href="/hallway0" className="feverna-btn w-full sm:w-auto text-center">
             Enter the Rooms
           </Link>
 
-          <Link
-            href="/guest"
-            className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 hover:border-white/25 transition text-sm uppercase tracking-[0.18em]"
-          >
+          <Link href="/guest" className="feverna-btn w-full sm:w-auto text-center">
             Guest Register
           </Link>
         </nav>
