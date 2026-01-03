@@ -19,8 +19,8 @@ export default function GuestRegisterPage() {
       "
     >
       {/* Light overlays (preserve the art; improve legibility) */}
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/30" />
+      <div className="absolute inset-0 pointer-events-none bg-black/20" />
+      <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-black/10 via-transparent to-black/30" />
 
       {/* Visually-hidden heading (image already contains the title) */}
       <h1 className="sr-only">Guest Register</h1>
@@ -50,8 +50,9 @@ export default function GuestRegisterPage() {
               </h2>
 
               <p className="mt-3 text-sm text-white/80 leading-relaxed">
-                Leave a name if you wish. Leave a room if you have one. Leave a memory if you can’t carry it
-                alone. Some entries are kept. Some are returned to the guest.
+                Leave a name if you wish. Leave a room if you have one. Leave a
+                memory if you can’t carry it alone. Some entries are kept. Some
+                are returned to the guest.
               </p>
 
               <div className="mt-6 pt-6 border-t border-white/10">
@@ -87,6 +88,18 @@ export default function GuestRegisterPage() {
                   Rooms
                 </Link>
               </div>
+
+              {/* Quiet in-world service link */}
+              <p className="mt-4 text-center text-[11px] uppercase tracking-[0.18em] text-white/45">
+                Lost &amp; Found inquiries are kept in the{" "}
+                <Link
+                  href="/lost-and-found"
+                  className="text-fevernaGold/85 underline underline-offset-4 hover:text-fevernaGold transition"
+                >
+                  ledger
+                </Link>
+                .
+              </p>
             </div>
           </section>
         </div>

@@ -17,7 +17,7 @@ export default function DeskPage() {
     <main className="relative w-full min-h-screen bg-black overflow-hidden">
       {/* Background image */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 z-0"
         style={{
           backgroundImage: "url('/images/desk-16x9.webp')",
           backgroundSize: "cover",
@@ -27,13 +27,31 @@ export default function DeskPage() {
       />
 
       {/* Keep overlays subtle (image already has atmosphere) */}
-      <div className="absolute inset-0 bg-black/0" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/5 via-transparent to-black/12" />
+      <div className="absolute inset-0 z-10 pointer-events-none bg-black/0" />
+      <div className="absolute inset-0 z-10 pointer-events-none bg-linear-to-b from-black/5 via-transparent to-black/12" />
+
+      {/* Bell hotspot: silent, in-world discovery */}
+      <Link
+        href="/lost-and-found/enter"
+        aria-label="Ring the bell"
+        className="
+          absolute z-20
+          left-1/2 top-[72%] -translate-x-1/2 -translate-y-1/2
+          h-[90px] w-[120px]
+          cursor-pointer
+          rounded-full
+          focus:outline-none focus-visible:ring-2
+          focus-visible:ring-(--feverna-gold)/60
+          focus-visible:ring-offset-2 focus-visible:ring-offset-black/40
+        "
+      >
+        <span className="sr-only">Ring the bell</span>
+      </Link>
 
       {/* Navigation block */}
       <nav
         aria-label="Desk navigation"
-        className="absolute left-1/2 top-[37%] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm px-6 fade-in-soft"
+        className="absolute z-30 left-1/2 top-[37%] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm px-6 fade-in-soft"
       >
         <div className="rounded-2xl border border-white/15 bg-black/55 backdrop-blur-md shadow-2xl px-6 py-6">
           <div className="flex flex-col items-center gap-3">
