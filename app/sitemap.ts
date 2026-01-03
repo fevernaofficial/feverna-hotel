@@ -1,35 +1,45 @@
 import type { MetadataRoute } from "next";
 
+export const dynamic = "force-dynamic";
+
 function getBaseUrl() {
-  // Preferred: set NEXT_PUBLIC_SITE_URL in Vercel (e.g. https://hotelfeverna.com)
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
   if (explicit) return explicit.replace(/\/$/, "");
 
-  // Vercel provides VERCEL_URL like "myapp.vercel.app"
   const vercel = process.env.VERCEL_URL;
   if (vercel) return `https://${vercel}`.replace(/\/$/, "");
 
-  // Local dev fallback
   return "http://localhost:3000";
 }
 
-export default function robots(): MetadataRoute.Robots {
+export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = getBaseUrl();
+  const now = new Date();
 
-  return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        // Keep ARG / hidden mechanics out of search results
-        disallow: [
-          "/lost-and-found",
-          "/lost-and-found/",
-          "/lost-and-found/enter",
-          "/lost-and-found/enter/",
-        ],
-      },
-    ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-  };
+  // Public pages only (keep ARG out of the sitemap)
+  const routes = [
+    "/",
+    "/desk",
+    "/guest",
+    "/gift",
+    "/contact",
+    "/about",
+    "/caretaker",
+    "/hallway0",
+    "/hallway1",
+    "/hallway2",
+    "/elevator",
+    "/boiler",
+    "/chapel",
+    "/courtyard",
+    "/solarium",
+    "/ballroom",
+  ] as const;
+
+  return routes.map((path) => ({
+    url: new URL(path, baseUrl).toString(),
+    lastModified: now,
+    changeFrequency: path === "/" ? "weekly" : "monthly",
+    priority: path === "/" ? 1 : 0.7,
+  }));
 }
