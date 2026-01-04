@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 declare global {
@@ -11,19 +11,17 @@ declare global {
 
 export default function GoogleAnalytics({ gaId }: { gaId: string }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!gaId || typeof window.gtag !== "function") return;
 
-    const pagePath = searchParams?.toString()
-      ? `${pathname}?${searchParams.toString()}`
-      : pathname;
+    // Avoid useSearchParams() to prevent Suspense/CSR-bailout issues during prerender.
+    const pagePath = `${window.location.pathname}${window.location.search}`;
 
     window.gtag("event", "page_view", {
       page_path: pagePath,
     });
-  }, [gaId, pathname, searchParams]);
+  }, [gaId, pathname]);
 
   return null;
 }
