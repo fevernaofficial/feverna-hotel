@@ -27,6 +27,8 @@ export default function robots(): MetadataRoute.Robots {
           "/lost-and-found/",
           "/lost-and-found/enter",
           "/lost-and-found/enter/",
+          "api",
+          "guest",
         ],
       },
     ],
