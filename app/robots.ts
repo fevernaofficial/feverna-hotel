@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 function getBaseUrl() {
-  // Preferred: set NEXT_PUBLIC_SITE_URL in Vercel (e.g. https://hotelfeverna.com)
+  // Preferred: set NEXT_PUBLIC_SITE_URL in Vercel (e.g. https://www.feverna.com)
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
   if (explicit) return explicit.replace(/\/$/, "");
 
@@ -21,14 +21,18 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // Keep ARG / hidden mechanics out of search results
         disallow: [
+          // Keep ARG / hidden mechanics out of search results
           "/lost-and-found",
-          "/lost-and-found/",
-          "/lost-and-found/enter",
-          "/lost-and-found/enter/",
-          "api",
-          "guest",
+          "/lost-and-found/*",
+
+          // Keep API endpoints out of search results
+          "/api",
+          "/api/*",
+
+          // Optional: keep form page out of search results (your call)
+          "/guest",
+          "/guest/*",
         ],
       },
     ],
