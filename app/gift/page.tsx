@@ -11,21 +11,18 @@ export default function GiftShopPage() {
     <main
       className="relative w-full min-h-screen bg-black overflow-hidden"
       style={{
-        backgroundImage: "url('/images/giftshop.png')",
+        backgroundImage: "url('/images/giftshop.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Soft overlays for legibility without muting the art */}
-      <div className="absolute inset-0 bg-black/15" />
-      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/35" />
-
       {/* Image already contains the visible title */}
       <h1 className="sr-only">Gift Shop</h1>
 
       {/* Small status + navigation, placed away from the door sign */}
       <div className="absolute left-5 bottom-16 md:left-10 md:bottom-20 z-10">
-        <div className="rounded-2xl border border-white/10 bg-black/35 backdrop-blur-sm shadow-2xl px-5 py-4 fade-in-soft max-w-[18rem]">
+        <div className="rounded-2xl border border-white/10 bg-black/45 backdrop-blur-sm shadow-2xl px-5 py-4 fade-in-soft max-w-[18rem]">
           <p className="text-[11px] uppercase tracking-[0.22em] text-white/65">
             Closed for renovations
           </p>
