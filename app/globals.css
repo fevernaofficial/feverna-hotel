@@ -143,7 +143,7 @@ a {
 }
 
 .fade-in-soft {
-  animation: fadeInSoft 2s ease-out forwards;
+  animation: fadeInSoft 1s ease-out forwards;
 }
 
 /* ------------------ */
