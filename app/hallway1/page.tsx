@@ -6,7 +6,7 @@ import { KeyRound, Lock } from "lucide-react";
 export const metadata: Metadata = {
   title: "First Floor | Hotel Feverna",
   description:
-    "A quieter corridor above the lobby. Song-rooms and chambers kept in dim light.",
+    "A quieter corridor above the lobby. Canon rooms are prepared in time; the ground floor remains open.",
 };
 
 type OpenDoor = {
@@ -72,7 +72,7 @@ export default function Hallway1Page() {
           </h1>
 
           <p className="mt-3 text-sm md:text-base text-white/80">
-            Song-rooms and chambers kept above the lobby light.
+            This corridor will house the canon rooms for <span className="text-fevernaGold">The Ache</span>.
           </p>
 
           <p className="mt-3 text-[11px] uppercase tracking-[0.22em] text-white/55">
@@ -80,13 +80,40 @@ export default function Hallway1Page() {
           </p>
         </header>
 
+        {/* Friendly orientation for casual visitors */}
+        {!hasOpenDoors ? (
+          <section className="mt-6 rounded-xl border border-white/10 bg-black/35 p-5">
+            <h2 className="text-xs uppercase tracking-[0.22em] text-white/70">
+              A note from the desk
+            </h2>
+            <p className="mt-3 text-sm text-white/80 leading-relaxed">
+              Nothing is broken. This floor is simply quiet while its rooms are prepared.
+              If you’re visiting for the first time, the hotel’s open doors are on the{" "}
+              <span className="text-fevernaGold">Ground Floor</span>.
+            </p>
+
+            <div className="mt-4 flex flex-col sm:flex-row gap-3">
+              <Link href="/hallway0" className="feverna-btn w-full sm:w-auto text-center">
+                Return to Ground Floor
+              </Link>
+              <Link href="/guest" className="feverna-btn w-full sm:w-auto text-center">
+                Guest Register
+              </Link>
+            </div>
+
+            <p className="mt-4 text-xs text-white/60">
+              The keys for this corridor are issued in time.
+            </p>
+          </section>
+        ) : null}
+
         {/* Scrollable door list */}
-        <div className="mt-8 flex-1 min-h-0 overflow-y-auto pr-2">
+        <div className="mt-6 flex-1 min-h-0 overflow-y-auto pr-2">
           <nav aria-label="First Floor rooms" className="space-y-3">
             {/* Open doors (when you’re ready) */}
             {OPEN_DOORS.map((door) => (
               <Link
-                key={String(door.href)}
+                key={door.href}
                 href={door.href}
                 className="
                   group block rounded-lg border border-white/10
@@ -118,9 +145,7 @@ export default function Hallway1Page() {
                   </span>
                 </div>
 
-                <div className="mt-1 text-xs md:text-sm text-white/60">
-                  {door.note}
-                </div>
+                <div className="mt-1 text-xs md:text-sm text-white/60">{door.note}</div>
               </Link>
             ))}
 
@@ -140,20 +165,13 @@ export default function Hallway1Page() {
 
                   <span className="inline-flex items-center gap-2 text-white/45">
                     <span className="sr-only">Closed</span>
-                    <span
-                      className="
-                        inline-flex items-center justify-center w-7 h-7 rounded-full
-                        border border-white/10 bg-black/25
-                      "
-                    >
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-white/10 bg-black/25">
                       <Lock className="w-4 h-4" aria-hidden="true" />
                     </span>
                   </span>
                 </div>
 
-                <div className="mt-1 text-xs md:text-sm text-white/50">
-                  {door.note}
-                </div>
+                <div className="mt-1 text-xs md:text-sm text-white/50">{door.note}</div>
               </div>
             ))}
 
@@ -166,12 +184,12 @@ export default function Hallway1Page() {
         </p>
 
         <nav className="mt-5 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-          <Link href="/hallway0" className="feverna-btn w-full sm:w-auto text-center">
-            Return to Ground Floor
-          </Link>
-
           <Link href="/elevator" className="feverna-btn w-full sm:w-auto text-center">
             Call the Elevator
+          </Link>
+
+          <Link href="/" className="feverna-btn w-full sm:w-auto text-center">
+            Back to Lobby
           </Link>
         </nav>
       </div>
