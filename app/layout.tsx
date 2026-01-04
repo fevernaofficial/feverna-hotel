@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,9 +14,37 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics (GA4) */}
+        {gaId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}', {
+                  anonymize_ip: true,
+                  send_page_view: false
+                });
+              `}
+            </Script>
+          </>
+        ) : null}
+      </head>
+
       <body>
+        {/* Tracks SPA route changes as pageviews */}
+        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
+
         {/* App shell */}
         <div className="min-h-screen flex flex-col">
           <main className="flex-1">{children}</main>
