@@ -1,15 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Lobby | Hotel Feverna",
-  description: "Enter softly. Speak to the desk, wander the ground floor, or sign the register.",
+  description:
+    "Enter softly. Speak to the desk, wander the ground floor, or sign the register.",
 };
 
-const lobbyLinks = [
-  { href: "/desk", label: "Approach the Desk", delay: "0s" },
-  { href: "/hallway0", label: "Wander the Ground Floor", delay: "1.2s" },
-  { href: "/guest", label: "Guest Register", delay: "2.4s" },
+type LobbyLink = {
+  href: Route;
+  label: string;
+  delay: string;
+};
+
+const lobbyLinks: readonly LobbyLink[] = [
+  { href: "/desk" as Route, label: "Approach the Desk", delay: "0s" },
+  { href: "/hallway0" as Route, label: "Wander the Ground Floor", delay: "1.2s" },
+  { href: "/guest" as Route, label: "Guest Register", delay: "2.4s" },
 ] as const;
 
 export default function Lobby() {
@@ -55,7 +62,7 @@ export default function Lobby() {
             {/* Gift Shop (with “closed” hanging sign) */}
             <div className="relative w-full">
               <Link
-                href="/gift"
+                href={"/gift" as Route}
                 className="w-full block rounded-md px-4 py-3 feverna-btn transition text-center"
               >
                 <span

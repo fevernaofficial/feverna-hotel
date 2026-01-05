@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -6,10 +6,16 @@ export const metadata: Metadata = {
   description: "The front desk is quiet. Leave a note, or sign the register.",
 };
 
-const LINKS = [
-  { href: "/contact", label: "Leave a Note", delay: "0s" },
-  { href: "/guest", label: "Sign the Register", delay: "1.2s" },
-  { href: "/hallway0", label: "Wander the Ground Floor", delay: "2.4s" },
+type DeskLink = {
+  href: Route;
+  label: string;
+  delay: string;
+};
+
+const LINKS: readonly DeskLink[] = [
+  { href: "/contact" as Route, label: "Leave a Note", delay: "0s" },
+  { href: "/guest" as Route, label: "Sign the Register", delay: "1.2s" },
+  { href: "/hallway0" as Route, label: "Wander the Ground Floor", delay: "2.4s" },
 ] as const;
 
 export default function DeskPage() {
@@ -32,7 +38,7 @@ export default function DeskPage() {
 
       {/* Bell hotspot: silent, in-world discovery */}
       <Link
-        href="/lost-and-found/enter"
+        href={"/lost-and-found/enter" as Route}
         aria-label="Ring the bell"
         className="
           absolute z-20
@@ -61,7 +67,6 @@ export default function DeskPage() {
                 href={item.href}
                 className="w-full rounded-md px-4 py-3 feverna-btn transition text-center"
               >
-                {/* Text-only flicker */}
                 <span
                   className="animate-flicker-text feverna-glow text-fevernaGold/90"
                   style={{ animationDelay: item.delay }}
@@ -72,7 +77,7 @@ export default function DeskPage() {
             ))}
 
             <Link
-              href="/"
+              href={"/" as Route}
               className="w-full rounded-md px-4 py-3 border border-white/15 bg-black/60 hover:bg-black/70 hover:border-white/25 transition text-center uppercase tracking-[0.18em] text-xs text-white/80"
             >
               Back to the Lobby

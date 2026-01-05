@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 import GuestRegisterForm from "../components/GuestRegisterForm";
 
@@ -75,14 +75,14 @@ export default function GuestRegisterPage() {
 
               <div className="mt-6 flex items-center justify-center gap-3">
                 <Link
-                  href="/"
+                  href={"/" as Route}
                   className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm uppercase tracking-[0.18em] border border-white/15 bg-white/5 hover:bg-white/10 transition"
                 >
                   Lobby
                 </Link>
 
                 <Link
-                  href="/hallway0"
+                  href={"/hallway0" as Route}
                   className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm uppercase tracking-[0.18em] border border-white/15 hover:border-white/25 transition"
                 >
                   Rooms
@@ -93,7 +93,7 @@ export default function GuestRegisterPage() {
               <p className="mt-4 text-center text-[11px] uppercase tracking-[0.18em] text-white/45">
                 Lost &amp; Found inquiries are kept in the{" "}
                 <Link
-                  href="/lost-and-found"
+                  href={"/lost-and-found/enter" as Route}
                   className="text-fevernaGold/85 underline underline-offset-4 hover:text-fevernaGold transition"
                 >
                   ledger
