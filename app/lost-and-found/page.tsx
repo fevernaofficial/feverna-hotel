@@ -1,14 +1,10 @@
 // app/lost-and-found/page.tsx
-import type { Route } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getEntry } from "./entries";
+import { ROUTES, routeWithQuery } from "../routes";
 
 const COOKIE_NAME = "feverna_lostfound_tag";
-
-// Typed-route friendly redirect targets
-const LOST_AND_FOUND = "/lost-and-found" as Route;
-const LOST_AND_FOUND_ERR = "/lost-and-found?err=1" as unknown as Route;
 
 export default async function LostAndFoundPage({
   searchParams,
@@ -22,11 +18,17 @@ export default async function LostAndFoundPage({
 
   async function submit(formData: FormData) {
     "use server";
+
     const raw = String(formData.get("tag") ?? "");
     const found = getEntry(raw);
 
+    // Next can be strict about redirect() arg typing; this keeps TS happy.
+    type RedirectArg = Parameters<typeof redirect>[0];
+
     if (!found) {
-      redirect(LOST_AND_FOUND_ERR);
+      redirect(
+        routeWithQuery(ROUTES.lostFound, { err: 1 }) as unknown as RedirectArg
+      );
     }
 
     const store = await cookies();
@@ -37,7 +39,7 @@ export default async function LostAndFoundPage({
       maxAge: 60 * 60 * 6, // 6 hours
     });
 
-    redirect(LOST_AND_FOUND);
+    redirect(ROUTES.lostFound as unknown as RedirectArg);
   }
 
   return (
@@ -45,9 +47,7 @@ export default async function LostAndFoundPage({
       {/* Background image (no global darkening; panel handles readability) */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('/images/lost.webp')",
-        }}
+        style={{ backgroundImage: "url('/images/lost.webp')" }}
       />
 
       <section className="relative z-10 mx-auto flex min-h-svh max-w-[760px] flex-col justify-center px-5">
@@ -118,7 +118,7 @@ export default async function LostAndFoundPage({
               </a>
 
               <a
-                href="/desk"
+                href={ROUTES.desk}
                 className="text-sm text-white/65 underline underline-offset-4"
               >
                 Return to the Desk
