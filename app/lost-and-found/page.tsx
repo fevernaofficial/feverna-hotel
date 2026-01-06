@@ -1,9 +1,14 @@
 // app/lost-and-found/page.tsx
+import type { Route } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getEntry } from "./entries";
 
 const COOKIE_NAME = "feverna_lostfound_tag";
+
+// Typed-route friendly redirect targets
+const LOST_AND_FOUND = "/lost-and-found" as Route;
+const LOST_AND_FOUND_ERR = "/lost-and-found?err=1" as unknown as Route;
 
 export default async function LostAndFoundPage({
   searchParams,
@@ -21,7 +26,7 @@ export default async function LostAndFoundPage({
     const found = getEntry(raw);
 
     if (!found) {
-      redirect("/lost-and-found?err=1");
+      redirect(LOST_AND_FOUND_ERR);
     }
 
     const store = await cookies();
@@ -32,7 +37,7 @@ export default async function LostAndFoundPage({
       maxAge: 60 * 60 * 6, // 6 hours
     });
 
-    redirect("/lost-and-found");
+    redirect(LOST_AND_FOUND);
   }
 
   return (
@@ -98,9 +103,7 @@ export default async function LostAndFoundPage({
           <div className="rounded-2xl border border-white/10 bg-black/55 p-6 backdrop-blur-sm">
             <p className="text-xs tracking-[0.18em] text-white/55">
               ENTRY RETRIEVED —{" "}
-              <span className="text-(--feverna-gold)">
-                {entry.displayTag}
-              </span>
+              <span className="text-(--feverna-gold)">{entry.displayTag}</span>
             </p>
 
             <div className="mt-4 space-y-3 text-sm leading-relaxed text-white/80">
