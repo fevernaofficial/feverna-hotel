@@ -26,7 +26,7 @@ export default function Lobby() {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: "url('/images/lobby-16x9.webp')",
+          backgroundImage: "url('/images/lobby.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

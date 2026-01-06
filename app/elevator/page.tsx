@@ -34,7 +34,7 @@ export default function ElevatorPage() {
     <main
       className="relative w-full min-h-screen flex items-start justify-center px-6 pt-6 pb-24 sm:py-10 overflow-hidden"
       style={{
-        backgroundImage: "url('/images/elevator.jpg')",
+        backgroundImage: "url('/images/elevator.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

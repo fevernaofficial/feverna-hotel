@@ -13,7 +13,7 @@ export default function GuestRegisterPage() {
       className="
         relative w-full min-h-screen bg-black
         overflow-x-hidden
-        bg-[url('/images/guest-register.png')]
+        bg-[url('/images/guest-register.webp')]
         bg-no-repeat bg-cover
         bg-position-[50%_50%]
       "

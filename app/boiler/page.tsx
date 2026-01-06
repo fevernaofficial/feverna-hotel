@@ -21,7 +21,7 @@ export default function BoilerRoomPage() {
     <main
       className="relative w-full min-h-screen flex items-start justify-center px-6 pt-6 pb-24 sm:py-10"
       style={{
-        backgroundImage: "url('/images/boiler.png')",
+        backgroundImage: "url('/images/boiler.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

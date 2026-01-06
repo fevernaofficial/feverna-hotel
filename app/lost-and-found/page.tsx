@@ -46,7 +46,7 @@ export default async function LostAndFoundPage({
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: "url('/images/drawer-open16x9.webp')",
+          backgroundImage: "url('/images/lost.webp')",
         }}
       />
 

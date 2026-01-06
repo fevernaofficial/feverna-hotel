@@ -15,7 +15,7 @@ export default function SolariumPage() {
     <main
       className="relative w-full min-h-screen flex items-start justify-center px-6 pt-6 pb-24 sm:py-10"
       style={{
-        backgroundImage: "url('/images/solarium.png')",
+        backgroundImage: "url('/images/solarium.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

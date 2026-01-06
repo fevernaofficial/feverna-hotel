@@ -25,7 +25,7 @@ export default function DeskPage() {
       <div
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: "url('/images/desk-16x9.webp')",
+          backgroundImage: "url('/images/desk.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

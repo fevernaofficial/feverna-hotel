@@ -11,7 +11,7 @@ export default function NotFound() {
     <main
       className="relative w-full min-h-screen bg-black overflow-hidden flex items-center justify-center px-6 py-10"
       style={{
-        backgroundImage: "url('/images/not-found.png')",
+        backgroundImage: "url('/images/not-found.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
