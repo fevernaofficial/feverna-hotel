@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
 
-export const dynamic = "force-dynamic";
-
 function getBaseUrl() {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
   if (explicit) return explicit.replace(/\/$/, "");
@@ -16,7 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = getBaseUrl();
   const now = new Date();
 
-  // Public pages only (keep ARG out of the sitemap)
   const routes = [
     "/",
     "/desk",
@@ -38,7 +35,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return routes.map((path) => ({
     url: new URL(path, baseUrl).toString(),
-    lastModified: now,
+    lastModified: now.toISOString(),
     changeFrequency: path === "/" ? "weekly" : "monthly",
     priority: path === "/" ? 1 : 0.7,
   }));

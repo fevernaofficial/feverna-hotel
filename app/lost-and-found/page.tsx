@@ -22,7 +22,6 @@ export default async function LostAndFoundPage({
     const raw = String(formData.get("tag") ?? "");
     const found = getEntry(raw);
 
-    // Next can be strict about redirect() arg typing; this keeps TS happy.
     type RedirectArg = Parameters<typeof redirect>[0];
 
     if (!found) {
@@ -36,7 +35,7 @@ export default async function LostAndFoundPage({
       httpOnly: true,
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 6, // 6 hours
+      maxAge: 60 * 60 * 6,
     });
 
     redirect(ROUTES.lostFound as unknown as RedirectArg);
@@ -44,7 +43,6 @@ export default async function LostAndFoundPage({
 
   return (
     <main className="relative min-h-svh overflow-hidden">
-      {/* Background image (no global darkening; panel handles readability) */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: "url('/images/lost.webp')" }}
@@ -103,7 +101,9 @@ export default async function LostAndFoundPage({
           <div className="rounded-2xl border border-white/10 bg-black/55 p-6 backdrop-blur-sm">
             <p className="text-xs tracking-[0.18em] text-white/55">
               ENTRY RETRIEVED —{" "}
-              <span className="text-(--feverna-gold)">{entry.displayTag}</span>
+              <span className="text-(--feverna-gold)">
+                {entry.displayTag}
+              </span>
             </p>
 
             <div className="mt-4 space-y-3 text-sm leading-relaxed text-white/80">

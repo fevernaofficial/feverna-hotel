@@ -17,7 +17,6 @@ const LINKS = [
 export default function DeskPage() {
   return (
     <main className="relative w-full min-h-screen bg-black overflow-hidden">
-      {/* Background image */}
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -28,11 +27,9 @@ export default function DeskPage() {
         }}
       />
 
-      {/* Keep overlays subtle (image already has atmosphere) */}
       <div className="absolute inset-0 z-10 pointer-events-none bg-black/0" />
       <div className="absolute inset-0 z-10 pointer-events-none bg-linear-to-b from-black/5 via-transparent to-black/12" />
 
-      {/* Bell hotspot: silent, in-world discovery */}
       <Link
         href={ROUTES.lostFoundEnter}
         aria-label="Ring the bell"
@@ -50,7 +47,6 @@ export default function DeskPage() {
         <span className="sr-only">Ring the bell</span>
       </Link>
 
-      {/* Navigation block */}
       <nav
         aria-label="Desk navigation"
         className="absolute z-30 left-1/2 top-[37%] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm px-6 fade-in-soft"

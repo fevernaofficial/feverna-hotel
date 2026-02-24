@@ -19,6 +19,9 @@ export const ROUTES = {
   solarium: "/solarium",
   ballroom: "/ballroom",
 
+  // Canon rooms (Typed Routes can lag/complain when new routes are added)
+  theAche101: "/the-ache/101" as Route,
+
   gift: "/gift",
   guest: "/guest",
   contact: "/contact",
@@ -31,8 +34,8 @@ export const ROUTES = {
 } as const satisfies Record<string, Route>;
 
 /**
- * Typed-route safe helper for query strings.
- * (Typed Routes can be strict about `"/path?x=1"` directly.)
+ * Helper for query strings.
+ * Returns a string; redirect() sometimes needs a cast at call sites.
  */
 export function routeWithQuery(
   path: Route,
