@@ -93,7 +93,7 @@ export default function SongRoomExperience({
               px-5 py-4 text-left transition
               hover:bg-black/45 hover:border-white/20
               focus:outline-none focus-visible:ring-2
-              focus-visible:ring-[color:var(--feverna-gold)]/60
+              focus-visible:ring-(--feverna-gold)/60
               focus-visible:ring-offset-2 focus-visible:ring-offset-black/40
             "
             aria-label="Remain"
