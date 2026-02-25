@@ -1,3 +1,4 @@
+// app/components/songrooms/SongRoomExperience.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -11,6 +12,10 @@ type Props = {
   hallwayHref: Route;
   youtubeId: string;
   roomNote?: string;
+
+  // ✅ Add this:
+  letterTitle?: string;
+
   letterParagraphs: string[];
 
   titleAfterMs?: number;
@@ -23,6 +28,8 @@ export default function SongRoomExperience({
   hallwayHref,
   youtubeId,
   roomNote,
+  // ✅ Add this:
+  letterTitle = "Open the letter",
   letterParagraphs,
   titleAfterMs = 3000,
   actionsAfterMs = 4000,
@@ -120,58 +127,58 @@ export default function SongRoomExperience({
         </div>
       ) : null}
 
-{hasRemained ? (
-  <div
-    className="
-      mt-8 rounded-2xl border border-white/10 bg-black/45 backdrop-blur-sm shadow-2xl
-      p-5 md:p-7 fade-in-soft
-      max-h-[calc(100svh-10rem)] overflow-y-auto no-scrollbar
-    "
-  >
-    <RoomPlayer
-      videos={videos}
-      defaultId={youtubeId}
-      enableAutoRotate={false}
-      showHeader={false}
-      showRoomContents={false}
-      showAutoRotateToggle={false}
-    />
+      {hasRemained ? (
+        <div
+          className="
+            mt-8 rounded-2xl border border-white/10 bg-black/45 backdrop-blur-sm shadow-2xl
+            p-5 md:p-7 fade-in-soft
+            max-h-[calc(100svh-10rem)] overflow-y-auto no-scrollbar
+          "
+        >
+          <RoomPlayer
+            videos={videos}
+            defaultId={youtubeId}
+            enableAutoRotate={false}
+            showHeader={false}
+            showRoomContents={false}
+            showAutoRotateToggle={false}
+          />
 
-    <LetterReveal
-      title="Open the letter"
-      availableAfterMs={letterAfterMs}
-      startSignal={remainSignal}
-      paragraphs={letterParagraphs}
-    />
+          <LetterReveal
+            title={letterTitle}
+            availableAfterMs={letterAfterMs}
+            startSignal={remainSignal}
+            paragraphs={letterParagraphs}
+          />
 
-    <div className="mt-6 flex flex-col items-center gap-3">
-      <Link
-        href={hallwayHref}
-        className="feverna-btn w-full sm:w-auto text-center"
-        onClick={() => {
-          window.dispatchEvent(
-            new CustomEvent("feverna:atmosphere", {
-              detail: {
-                action: "fadeInAfterSilence",
-                silenceSeconds: 1.5,
-                seconds: 2,
-              },
-            })
-          );
-        }}
-      >
-        Return to the Corridor
-      </Link>
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <Link
+              href={hallwayHref}
+              className="feverna-btn w-full sm:w-auto text-center"
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent("feverna:atmosphere", {
+                    detail: {
+                      action: "fadeInAfterSilence",
+                      silenceSeconds: 1.5,
+                      seconds: 2,
+                    },
+                  })
+                );
+              }}
+            >
+              Return to the Corridor
+            </Link>
 
-      <Link
-        href={"/" as Route}
-        className="text-sm text-white/60 underline underline-offset-4 hover:text-fevernaGold transition"
-      >
-        Back to the Lobby
-      </Link>
-    </div>
-  </div>
-) : null}
+            <Link
+              href={"/" as Route}
+              className="text-sm text-white/60 underline underline-offset-4 hover:text-fevernaGold transition"
+            >
+              Back to the Lobby
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
