@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import HotelAtmosphere from "./components/HotelAtmosphere";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,7 +20,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google Analytics (GA4) */}
         {gaId ? (
           <>
             <Script
@@ -42,14 +42,13 @@ export default function RootLayout({
       </head>
 
       <body>
-        {/* Tracks SPA route changes as pageviews */}
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
 
-        {/* App shell */}
+        <HotelAtmosphere />
+
         <div className="min-h-screen flex flex-col">
           <main className="flex-1">{children}</main>
 
-          {/* Global footer */}
           <footer
             className="fixed bottom-0 left-0 w-full h-8
                        flex items-center justify-center

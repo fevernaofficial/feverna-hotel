@@ -13,7 +13,6 @@ type Props = {
   roomNote?: string;
   letterParagraphs: string[];
 
-  // Timing knobs (defaults match our plan)
   titleAfterMs?: number;
   actionsAfterMs?: number;
   letterAfterMs?: number;
@@ -62,7 +61,6 @@ export default function SongRoomExperience({
     setHasRemained(true);
     setRemainSignal((n) => n + 1);
 
-    // Hook for later: tell a global “atmosphere” controller to fade out.
     window.dispatchEvent(
       new CustomEvent("feverna:atmosphere", {
         detail: { action: "fadeOut", seconds: 5 },
@@ -72,7 +70,6 @@ export default function SongRoomExperience({
 
   return (
     <div className="relative z-10 mx-auto flex min-h-svh max-w-[760px] flex-col justify-center px-5">
-      {/* Title block (appears after a pause) */}
       {showTitle ? (
         <header className="text-center fade-in-soft">
           <h1 className="text-3xl md:text-5xl font-semibold tracking-[0.22em] uppercase feverna-glow text-white/90">
@@ -80,14 +77,11 @@ export default function SongRoomExperience({
           </h1>
 
           {roomNote ? (
-            <p className="mt-3 text-sm md:text-base text-white/70">
-              {roomNote}
-            </p>
+            <p className="mt-3 text-sm md:text-base text-white/70">{roomNote}</p>
           ) : null}
         </header>
       ) : null}
 
-      {/* Actions near the “foot of the bed” */}
       {showActions ? (
         <div className="mt-8 flex flex-col items-center gap-3 fade-in-soft">
           <button
@@ -99,7 +93,7 @@ export default function SongRoomExperience({
               px-5 py-4 text-left transition
               hover:bg-black/45 hover:border-white/20
               focus:outline-none focus-visible:ring-2
-              focus-visible:ring-(--feverna-gold)/60
+              focus-visible:ring-[color:var(--feverna-gold)]/60
               focus-visible:ring-offset-2 focus-visible:ring-offset-black/40
             "
             aria-label="Remain"
@@ -119,59 +113,65 @@ export default function SongRoomExperience({
 
           <Link
             href={hallwayHref}
-            className="
-              text-[11px] uppercase tracking-[0.22em]
-              text-white/55 hover:text-fevernaGold transition
-            "
+            className="text-[11px] uppercase tracking-[0.22em] text-white/55 hover:text-fevernaGold transition"
           >
             Back to the Hallway
           </Link>
         </div>
       ) : null}
 
-      {/* Song event (only mounts after “Remain”) */}
-      {hasRemained ? (
-        <div className="mt-8 rounded-2xl border border-white/10 bg-black/45 backdrop-blur-sm shadow-2xl p-5 md:p-7 fade-in-soft">
-          <RoomPlayer
-            videos={videos}
-            defaultId={youtubeId}
-            enableAutoRotate={false}
-          />
+{hasRemained ? (
+  <div
+    className="
+      mt-8 rounded-2xl border border-white/10 bg-black/45 backdrop-blur-sm shadow-2xl
+      p-5 md:p-7 fade-in-soft
+      max-h-[calc(100svh-10rem)] overflow-y-auto no-scrollbar
+    "
+  >
+    <RoomPlayer
+      videos={videos}
+      defaultId={youtubeId}
+      enableAutoRotate={false}
+      showHeader={false}
+      showRoomContents={false}
+      showAutoRotateToggle={false}
+    />
 
-          <LetterReveal
-            availableAfterMs={letterAfterMs}
-            startSignal={remainSignal}
-            paragraphs={letterParagraphs}
-          />
+    <LetterReveal
+      title="Open the letter"
+      availableAfterMs={letterAfterMs}
+      startSignal={remainSignal}
+      paragraphs={letterParagraphs}
+    />
 
-          <div className="mt-6 flex flex-col items-center gap-3">
-            <Link
-              href={hallwayHref}
-              className="feverna-btn w-full sm:w-auto text-center"
-              onClick={() => {
-                window.dispatchEvent(
-                  new CustomEvent("feverna:atmosphere", {
-                    detail: {
-                      action: "fadeInAfterSilence",
-                      silenceSeconds: 1.5,
-                      seconds: 2,
-                    },
-                  })
-                );
-              }}
-            >
-              Return to the Corridor
-            </Link>
+    <div className="mt-6 flex flex-col items-center gap-3">
+      <Link
+        href={hallwayHref}
+        className="feverna-btn w-full sm:w-auto text-center"
+        onClick={() => {
+          window.dispatchEvent(
+            new CustomEvent("feverna:atmosphere", {
+              detail: {
+                action: "fadeInAfterSilence",
+                silenceSeconds: 1.5,
+                seconds: 2,
+              },
+            })
+          );
+        }}
+      >
+        Return to the Corridor
+      </Link>
 
-            <Link
-              href={"/" as Route}
-              className="text-sm text-white/60 underline underline-offset-4 hover:text-fevernaGold transition"
-            >
-              Back to the Lobby
-            </Link>
-          </div>
-        </div>
-      ) : null}
+      <Link
+        href={"/" as Route}
+        className="text-sm text-white/60 underline underline-offset-4 hover:text-fevernaGold transition"
+      >
+        Back to the Lobby
+      </Link>
+    </div>
+  </div>
+) : null}
     </div>
   );
 }
