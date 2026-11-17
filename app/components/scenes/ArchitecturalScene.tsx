@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import type { Route } from "next";
 import type { CSSProperties } from "react";
 import styles from "./ArchitecturalScene.module.css";
 
-export type SceneHotspot = {
+type SceneHotspotBase = {
   id: string;
   label: string;
   description?: string;
@@ -14,10 +16,15 @@ export type SceneHotspot = {
     width: number;
     height: number;
   };
-  onActivate: () => void;
   controls?: string;
   expanded?: boolean;
 };
+
+export type SceneHotspot = SceneHotspotBase &
+  (
+    | { href: Route; onActivate?: never }
+    | { href?: never; onActivate: () => void }
+  );
 
 type ArchitecturalSceneProps = {
   sceneId: string;
@@ -66,6 +73,34 @@ export default function ArchitecturalScene({
                 width: `${hotspot.bounds.width}%`,
                 height: `${hotspot.bounds.height}%`,
               };
+              const accessibleLabel = hotspot.description
+                ? `${hotspot.label}. ${hotspot.description}`
+                : hotspot.label;
+              const content = (
+                <>
+                  <span className={styles.marker} aria-hidden="true" />
+                  <span className={styles.label} aria-hidden="true">
+                    <strong>{hotspot.label}</strong>
+                    {hotspot.description ? (
+                      <small>{hotspot.description}</small>
+                    ) : null}
+                  </span>
+                </>
+              );
+
+              if (hotspot.href) {
+                return (
+                  <Link
+                    key={hotspot.id}
+                    className={styles.hotspot}
+                    style={hotspotStyle}
+                    href={hotspot.href}
+                    aria-label={accessibleLabel}
+                  >
+                    {content}
+                  </Link>
+                );
+              }
 
               return (
                 <button
@@ -74,21 +109,11 @@ export default function ArchitecturalScene({
                   className={styles.hotspot}
                   style={hotspotStyle}
                   onClick={hotspot.onActivate}
-                  aria-label={
-                    hotspot.description
-                      ? `${hotspot.label}. ${hotspot.description}`
-                      : hotspot.label
-                  }
+                  aria-label={accessibleLabel}
                   aria-controls={hotspot.controls}
                   aria-expanded={hotspot.expanded}
                 >
-                  <span className={styles.marker} aria-hidden="true" />
-                  <span className={styles.label} aria-hidden="true">
-                    <strong>{hotspot.label}</strong>
-                    {hotspot.description ? (
-                      <small>{hotspot.description}</small>
-                    ) : null}
-                  </span>
+                  {content}
                 </button>
               );
             })}

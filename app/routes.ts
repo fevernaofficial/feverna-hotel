@@ -7,6 +7,7 @@ import type { Route } from "next";
  */
 export const ROUTES = {
   lobby: "/",
+  library: "/library" as Route,
   desk: "/desk",
   hallway0: "/hallway0",
   hallway1: "/hallway1",

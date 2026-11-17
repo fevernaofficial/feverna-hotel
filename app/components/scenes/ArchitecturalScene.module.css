@@ -43,6 +43,7 @@
   border-radius: 0.75rem;
   background: transparent;
   color: #f1dfc0;
+  text-decoration: none;
   transition:
     border-color 180ms ease,
     background-color 180ms ease,

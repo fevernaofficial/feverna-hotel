@@ -83,6 +83,13 @@ export default function GrandLobbyExperience() {
             controls: "reception-welcome",
             expanded: receptionOpen,
           },
+          {
+            id: "library",
+            label: "Library",
+            description: "Enter through the library doorway.",
+            bounds: { left: 84, top: 27, width: 14, height: 43 },
+            href: ROUTES.library,
+          },
         ]
       : [
           {
@@ -161,6 +168,8 @@ export default function GrandLobbyExperience() {
             >
               Approach Reception
             </button>
+            <span aria-hidden="true" />
+            <Link href={ROUTES.library}>Enter Library</Link>
             <span aria-hidden="true" />
             <button type="button" onClick={() => showView("exterior")}>
               Step Outside

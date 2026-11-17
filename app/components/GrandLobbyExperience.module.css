@@ -177,8 +177,12 @@
   background: rgba(222, 185, 123, 0.28);
 }
 
-.directory button {
+.directory button,
+.directory a {
+  display: inline-flex;
   min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   border: 0;
   background: transparent;
@@ -186,13 +190,21 @@
   font-family: Georgia, "Times New Roman", serif;
   font-size: 0.66rem;
   letter-spacing: 0.18em;
+  text-decoration: none;
   text-transform: uppercase;
   transition: color 180ms ease;
 }
 
 .directory button:hover,
-.directory button:focus-visible {
+.directory button:focus-visible,
+.directory a:hover,
+.directory a:focus-visible {
   color: #ffe6b8;
+}
+
+.directory a:focus-visible {
+  outline: 2px solid rgba(244, 211, 154, 0.95);
+  outline-offset: 3px;
 }
 
 @keyframes panel-arrival {
@@ -248,7 +260,8 @@
     display: none;
   }
 
-  .directory button {
+  .directory button,
+  .directory a {
     min-width: 0;
     padding-right: 0.45rem;
     padding-left: 0.45rem;
@@ -261,7 +274,8 @@
 @media (prefers-reduced-motion: reduce) {
   .receptionPanel,
   .primaryLink,
-  .directory button {
+  .directory button,
+  .directory a {
     animation: none;
     transition: none;
   }
