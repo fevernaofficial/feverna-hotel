@@ -1,0 +1,164 @@
+.scene {
+  display: grid;
+  width: 100%;
+  place-items: center;
+}
+
+.stage {
+  width: min(100%, calc((100svh - 9rem) * var(--scene-ratio)));
+  max-width: 1672px;
+  aspect-ratio: var(--scene-aspect);
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(203, 170, 116, 0.24);
+  background: #080706;
+  box-shadow:
+    0 1.5rem 5rem rgba(0, 0, 0, 0.55),
+    0 0 2.5rem rgba(163, 112, 53, 0.08);
+  animation: scene-arrival 480ms ease-out both;
+}
+
+.image {
+  object-fit: contain;
+}
+
+.hotspots {
+  position: absolute;
+  inset: 0;
+}
+
+.hotspot {
+  position: absolute;
+  display: grid;
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: #f1dfc0;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.hotspot:hover,
+.hotspot:focus-visible {
+  border-color: rgba(223, 187, 125, 0.52);
+  background: rgba(11, 8, 6, 0.18);
+  box-shadow: inset 0 0 2rem rgba(225, 181, 105, 0.1);
+}
+
+.hotspot:focus-visible {
+  outline: 2px solid rgba(250, 221, 169, 0.95);
+  outline-offset: 3px;
+}
+
+.marker {
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid rgba(255, 224, 171, 0.82);
+  border-radius: 50%;
+  background: rgba(27, 18, 11, 0.64);
+  box-shadow:
+    0 0 0 0.3rem rgba(12, 8, 5, 0.28),
+    0 0 1.1rem rgba(238, 188, 104, 0.58);
+  transition: transform 180ms ease;
+}
+
+.hotspot:hover .marker,
+.hotspot:focus-visible .marker {
+  transform: scale(1.12);
+}
+
+.label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.55rem);
+  display: grid;
+  width: max-content;
+  max-width: min(17rem, 70vw);
+  gap: 0.2rem;
+  padding: 0.55rem 0.7rem;
+  pointer-events: none;
+  border: 1px solid rgba(231, 199, 145, 0.28);
+  border-radius: 0.35rem;
+  opacity: 0;
+  background: rgba(8, 6, 5, 0.88);
+  box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.45);
+  text-align: center;
+  transform: translate(-50%, 0.35rem);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.label strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.label small {
+  color: rgba(255, 255, 255, 0.67);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.hotspot:hover .label,
+.hotspot:focus-visible .label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@keyframes scene-arrival {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .stage {
+    width: 100%;
+  }
+
+  .canvas {
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .marker {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+@media (pointer: coarse) {
+  .marker {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas,
+  .hotspot,
+  .marker,
+  .label {
+    animation: none;
+    transition: none;
+  }
+}

@@ -8,8 +8,7 @@
   --foreground: #171717;
   --feverna-gold: #a68e6d;
 
-  /* footer is h-8 => 2rem (32px) */
-  --footer-h: 2rem;
+  --footer-h: 2.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,30 +23,29 @@
 /* ------------------ */
 html,
 body {
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-
-  /* Kill page scroll (we scroll inside cards instead) */
   overflow-x: hidden;
-  overflow-y: hidden;
-
-  /* Prevent iOS/Android bounce */
   overscroll-behavior: none;
 }
 
-#__next {
-  height: 100%;
-  min-height: 100%;
-}
-
 body {
+  min-height: 100svh;
+  overflow-y: auto;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
 
-  /* Make room for the fixed footer + phone safe-area */
+.site-shell {
+  min-height: 100svh;
+}
+
+.site-content {
+  box-sizing: border-box;
+  min-height: 100svh;
   padding-bottom: calc(var(--footer-h) + env(safe-area-inset-bottom));
 }
 
@@ -217,14 +215,106 @@ a {
 }
 
 /* ------------------ */
-/* FIXED FOOTER       */
+/* SITE CHROME        */
 /* ------------------ */
-footer {
-  position: fixed !important;
-  bottom: 0 !important;
+.site-footer {
+  position: fixed;
+  right: 0;
+  bottom: 0;
   left: 0;
-  width: 100%;
   z-index: 99999;
+  display: flex;
+  box-sizing: border-box;
+  min-height: calc(var(--footer-h) + env(safe-area-inset-bottom));
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.8rem, 4vw, 2rem);
+  padding: 0.45rem 1rem calc(0.45rem + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(166, 142, 109, 0.24);
+  background: rgba(3, 3, 3, 0.78);
+  box-shadow: 0 -2px 12px rgba(166, 142, 109, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.site-footer-link {
+  color: rgba(205, 179, 141, 0.78);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 160ms ease;
+}
+
+.site-footer-link:hover,
+.site-footer-link:focus-visible {
+  color: #ead0a9;
+}
+
+.site-footer-link:focus-visible {
+  outline: 2px solid rgba(226, 194, 145, 0.82);
+  outline-offset: 3px;
+}
+
+.atmosphere-toggle {
+  position: fixed;
+  top: max(0.7rem, env(safe-area-inset-top));
+  right: max(0.7rem, env(safe-area-inset-right));
+  z-index: 100000;
+  min-width: 3.7rem;
+  min-height: 2.25rem;
+  cursor: pointer;
+  border: 1px solid rgba(213, 181, 128, 0.28);
+  border-radius: 999px;
+  background: rgba(7, 6, 5, 0.68);
+  color: rgba(235, 211, 171, 0.74);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  backdrop-filter: blur(9px);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.atmosphere-toggle:hover,
+.atmosphere-toggle:focus-visible {
+  border-color: rgba(235, 205, 154, 0.62);
+  background: rgba(11, 8, 6, 0.82);
+  color: #f2dab0;
+}
+
+.atmosphere-toggle:focus-visible {
+  outline: 2px solid rgba(244, 211, 154, 0.95);
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .site-footer {
+    gap: 0.45rem;
+    padding-right: 0.35rem;
+    padding-left: 0.35rem;
+  }
+
+  .site-footer-link {
+    font-size: 0.57rem;
+    letter-spacing: 0.035em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-soft,
+  .fade-in-quick,
+  .animate-flicker,
+  .animate-flicker-text {
+    animation: none;
+  }
+
+  .site-footer-link,
+  .atmosphere-toggle {
+    transition: none;
+  }
 }
 
 @keyframes fevernaInk {

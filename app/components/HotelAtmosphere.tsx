@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import {
+  HOTEL_ATMOSPHERE_EVENT,
+  type AtmosphereEnvironment,
+  type AtmosphereEvent,
+} from "../lib/atmosphere";
 
-type AtmosphereEvent =
-  | { action: "fadeOut"; seconds?: number }
-  | { action: "fadeIn"; seconds?: number }
-  | { action: "fadeInAfterSilence"; silenceSeconds?: number; seconds?: number }
-  | { action: "stop" };
+const INTERIOR_VOLUME = 0.18;
 
 function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
@@ -19,30 +20,32 @@ export default function HotelAtmosphere() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const startedRef = useRef(false);
+  const environmentRef = useRef<AtmosphereEnvironment>("interior");
+  const enabledRef = useRef(true);
 
-  const [enabled] = useState(true);
+  const [enabled, setEnabled] = useState(true);
 
-  // Breath zones: lobby + hallways + elevator
-const isBreathZone = useMemo(() => {
   // Lobby + hallways + elevator are always breath zones.
-  // Canon room routes are ALSO breath zones until "Remain" triggers fadeOut.
-  return (
-    pathname === "/" ||
-    pathname.startsWith("/hallway") ||
-    pathname.startsWith("/elevator") ||
-    pathname.startsWith("/the-ache") ||
-    pathname.startsWith("/next-current")
-  );
-}, [pathname]);
+  // Canon room routes are also breath zones until "Remain" triggers fadeOut.
+  const isInteriorRoute = useMemo(() => {
+    return (
+      pathname === "/" ||
+      pathname.startsWith("/guest") ||
+      pathname.startsWith("/hallway") ||
+      pathname.startsWith("/elevator") ||
+      pathname.startsWith("/the-ache") ||
+      pathname.startsWith("/next-current")
+    );
+  }, [pathname]);
 
-  function cancelRaf() {
-    if (rafRef.current) {
+  const cancelRaf = useCallback(() => {
+    if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
-  }
+  }, []);
 
-  function fadeTo(target: number, seconds: number) {
+  const fadeTo = useCallback((target: number, seconds: number) => {
     const el = audioRef.current;
     if (!el) return;
 
@@ -67,12 +70,12 @@ const isBreathZone = useMemo(() => {
     };
 
     rafRef.current = requestAnimationFrame(tick);
-  }
+  }, [cancelRaf]);
 
-  async function ensureStarted() {
+  const ensureStarted = useCallback(async (force = false) => {
     const el = audioRef.current;
     if (!el) return;
-    if (!enabled) return;
+    if (!enabled && !force) return;
     if (startedRef.current) return;
 
     startedRef.current = true;
@@ -81,9 +84,40 @@ const isBreathZone = useMemo(() => {
       el.loop = true;
       el.volume = 0;
       await el.play();
-      fadeTo(0.18, 2.0); // base level + fade-in
+      if (environmentRef.current === "exterior") {
+        el.pause();
+        return;
+      }
+      fadeTo(INTERIOR_VOLUME, 2.0);
     } catch {
       startedRef.current = false;
+    }
+  }, [enabled, fadeTo]);
+
+  function toggleSound() {
+    if (enabled) {
+      enabledRef.current = false;
+      cancelRaf();
+      const el = audioRef.current;
+      if (el) {
+        el.pause();
+      }
+      setEnabled(false);
+      return;
+    }
+
+    enabledRef.current = true;
+    setEnabled(true);
+    if (environmentRef.current === "interior") {
+      const el = audioRef.current;
+      if (startedRef.current && el) {
+        try {
+          el.play().catch(() => {});
+        } catch {}
+        fadeTo(INTERIOR_VOLUME, 1.2);
+      } else {
+        void ensureStarted(true);
+      }
     }
   }
 
@@ -92,7 +126,7 @@ const isBreathZone = useMemo(() => {
     if (!enabled) return;
 
     const onFirstGesture = () => {
-      if (!isBreathZone) return;
+      if (!isInteriorRoute || environmentRef.current === "exterior") return;
       ensureStarted();
       window.removeEventListener("pointerdown", onFirstGesture);
       window.removeEventListener("keydown", onFirstGesture);
@@ -105,22 +139,22 @@ const isBreathZone = useMemo(() => {
       window.removeEventListener("pointerdown", onFirstGesture);
       window.removeEventListener("keydown", onFirstGesture);
     };
-  }, [enabled, isBreathZone]);
+  }, [enabled, ensureStarted, isInteriorRoute]);
 
   // Fade out when leaving breath zones; fade in when returning
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
 
-    if (!enabled) {
+    environmentRef.current = isInteriorRoute ? "interior" : "exterior";
+
+    if (!enabledRef.current) {
       cancelRaf();
       el.pause();
-      el.currentTime = 0;
-      startedRef.current = false;
       return;
     }
 
-    if (!isBreathZone) {
+    if (!isInteriorRoute) {
       fadeTo(0, 5.0);
       return;
     }
@@ -129,19 +163,41 @@ const isBreathZone = useMemo(() => {
       try {
         el.play().catch(() => {});
       } catch {}
-      fadeTo(0.18, 2.0);
+      fadeTo(INTERIOR_VOLUME, 2.0);
     }
-  }, [pathname, enabled, isBreathZone]);
+  }, [cancelRaf, fadeTo, isInteriorRoute, pathname]);
 
   // Respond to room events (fade out/in)
   useEffect(() => {
     const handler = (e: Event) => {
       const el = audioRef.current;
       if (!el) return;
-      if (!enabled) return;
 
       const detail = (e as CustomEvent<AtmosphereEvent>).detail;
       if (!detail) return;
+
+      if (detail.action === "setEnvironment") {
+        environmentRef.current = detail.environment;
+
+        if (!enabled) return;
+
+        if (detail.environment === "exterior") {
+          fadeTo(0, detail.seconds ?? 1.8);
+          return;
+        }
+
+        if (!startedRef.current) {
+          void ensureStarted();
+          return;
+        }
+        try {
+          el.play().catch(() => {});
+        } catch {}
+        fadeTo(INTERIOR_VOLUME, detail.seconds ?? 1.8);
+        return;
+      }
+
+      if (!enabled) return;
 
       if (detail.action === "fadeOut") {
         fadeTo(0, detail.seconds ?? 5);
@@ -152,7 +208,7 @@ const isBreathZone = useMemo(() => {
         try {
           el.play().catch(() => {});
         } catch {}
-        fadeTo(0.18, detail.seconds ?? 2);
+        fadeTo(INTERIOR_VOLUME, detail.seconds ?? 2);
       }
 
       if (detail.action === "fadeInAfterSilence") {
@@ -164,7 +220,7 @@ const isBreathZone = useMemo(() => {
           try {
             el.play().catch(() => {});
           } catch {}
-          fadeTo(0.18, seconds);
+          fadeTo(INTERIOR_VOLUME, seconds);
         }, Math.max(0, silence * 1000));
       }
 
@@ -176,9 +232,30 @@ const isBreathZone = useMemo(() => {
       }
     };
 
-    window.addEventListener("feverna:atmosphere", handler as EventListener);
-    return () => window.removeEventListener("feverna:atmosphere", handler as EventListener);
-  }, [enabled]);
+    window.addEventListener(HOTEL_ATMOSPHERE_EVENT, handler as EventListener);
+    return () =>
+      window.removeEventListener(HOTEL_ATMOSPHERE_EVENT, handler as EventListener);
+  }, [cancelRaf, enabled, ensureStarted, fadeTo]);
 
-  return <audio ref={audioRef} src="/audio/breath.mp3" preload="auto" />;
+  useEffect(() => {
+    return cancelRaf;
+  }, [cancelRaf]);
+
+  return (
+    <>
+      <audio ref={audioRef} src="/audio/breath.mp3" preload="auto" />
+      <button
+        type="button"
+        className="atmosphere-toggle"
+        onClick={toggleSound}
+        onPointerDown={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+        aria-pressed={enabled}
+        aria-label={enabled ? "Turn ambient sound off" : "Turn ambient sound on"}
+        title={enabled ? "Turn ambient sound off" : "Turn ambient sound on"}
+      >
+        Sound {enabled ? "on" : "off"}
+      </button>
+    </>
+  );
 }

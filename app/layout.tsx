@@ -46,33 +46,27 @@ export default function RootLayout({
 
         <HotelAtmosphere />
 
-        <div className="min-h-screen flex flex-col">
-          <main className="flex-1">{children}</main>
+        <div className="site-shell">
+          <div className="site-content">{children}</div>
 
           <footer
-            className="fixed bottom-0 left-0 w-full h-8
-                       flex items-center justify-center
-                       text-[11px] text-fevernaGold/80
-                       bg-[rgba(0,0,0,0.7)] backdrop-blur-sm
-                       border-t border-fevernaGold/30
-                       shadow-[0_-2px_10px_rgba(166,142,109,0.15)]
-                       z-9999 fade-in-soft"
-            style={{ gap: "2rem", letterSpacing: "0.03em" }}
+            className="site-footer fade-in-soft"
+            aria-label="Hotel information"
           >
-            <Link href="/about" className="hover:text-fevernaGold transition">
+            <Link href="/about" className="site-footer-link">
               About
             </Link>
-            <Link href="/caretaker" className="hover:text-fevernaGold transition">
+            <Link href="/caretaker" className="site-footer-link">
               Caretaker
             </Link>
-            <Link href="/contact" className="hover:text-fevernaGold transition">
+            <Link href="/contact" className="site-footer-link">
               Contact
             </Link>
             <a
               href="https://linktr.ee/fevernaofficial"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-fevernaGold transition"
+              className="site-footer-link"
             >
               Socials
             </a>
