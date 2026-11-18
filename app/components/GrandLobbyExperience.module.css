@@ -207,6 +207,16 @@
   outline-offset: 3px;
 }
 
+.subduedDirectory {
+  opacity: 0.68;
+  transition: opacity 180ms ease;
+}
+
+.subduedDirectory:hover,
+.subduedDirectory:focus-within {
+  opacity: 1;
+}
+
 @keyframes panel-arrival {
   from {
     opacity: 0;
@@ -275,7 +285,8 @@
   .receptionPanel,
   .primaryLink,
   .directory button,
-  .directory a {
+  .directory a,
+  .subduedDirectory {
     animation: none;
     transition: none;
   }
