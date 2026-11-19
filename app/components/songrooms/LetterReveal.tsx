@@ -15,18 +15,22 @@ export default function LetterReveal({
   startSignal = 0,
   paragraphs,
 }: Props) {
-  const [available, setAvailable] = useState(false);
-  const [open, setOpen] = useState(false);
+  const cycleKey = `${startSignal}:${availableAfterMs}`;
+  const [availableCycle, setAvailableCycle] = useState<string | null>(null);
+  const [openCycle, setOpenCycle] = useState<string | null>(null);
+
+  const available = Boolean(startSignal) && availableCycle === cycleKey;
+  const open = available && openCycle === cycleKey;
 
   useEffect(() => {
-    setAvailable(false);
-    setOpen(false);
-
     if (!startSignal) return;
 
-    const t = window.setTimeout(() => setAvailable(true), availableAfterMs);
+    const t = window.setTimeout(
+      () => setAvailableCycle(cycleKey),
+      availableAfterMs
+    );
     return () => window.clearTimeout(t);
-  }, [startSignal, availableAfterMs]);
+  }, [startSignal, availableAfterMs, cycleKey]);
 
   return (
     <section className="mt-6">
@@ -34,7 +38,7 @@ export default function LetterReveal({
         <button
           type="button"
           disabled={!available}
-          onClick={() => setOpen(true)}
+          onClick={() => setOpenCycle(cycleKey)}
           className={`
             w-full rounded-xl border border-white/10 bg-black/35 backdrop-blur-sm
             px-5 py-4 text-left transition
@@ -64,7 +68,7 @@ export default function LetterReveal({
             </h2>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => setOpenCycle(null)}
               className="text-[11px] uppercase tracking-[0.18em] text-white/55 hover:text-fevernaGold transition"
             >
               Fold
