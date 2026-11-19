@@ -12,7 +12,7 @@ export default function ContactPage() {
     <main
       className="relative min-h-screen w-full overflow-x-hidden bg-black"
       style={{
-        backgroundImage: "url('/images/contact.png')",
+        backgroundImage: "url('/images/contact.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -49,10 +49,6 @@ export default function ContactPage() {
             <div className="pt-4 border-t border-white/10" />
 
             <ContactForm />
-
-            <p className="text-xs md:text-sm text-white/60">
-              If you’d rather speak where other guests linger, use the social links in the footer.
-            </p>
           </section>
 
           <nav className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">

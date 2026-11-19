@@ -4,6 +4,17 @@ import { Resend } from "resend";
 export const runtime = "nodejs";
 
 const FROM = "Hotel Feverna <contact@feverna.com>";
+const MAX_BODY_BYTES = 32 * 1024;
+const MIN_SUBMIT_MS = 1500;
+const MAX_FORM_AGE_MS = 2 * 60 * 60 * 1000;
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const MAX_PER_WINDOW = 5;
+
+const SUCCESS_MESSAGE = "Your message has been sent.";
+const DELIVERY_FAILURE_MESSAGE =
+  "Your message could not be sent right now. Please try again later or use the direct email address.";
+
+const buckets = new Map<string, { count: number; resetAt: number }>();
 
 function escapeHtml(input: string) {
   return input
@@ -14,93 +25,217 @@ function escapeHtml(input: string) {
     .replaceAll("'", "&#039;");
 }
 
-// Best-effort in-memory rate limiting (good enough for now).
-// Note: in serverless, memory may not persist across instances, but it still helps.
-const buckets = new Map<string, { count: number; resetAt: number }>();
-const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const MAX_PER_WINDOW = 5;
-
-function getClientIp(req: Request) {
-  const xf = req.headers.get("x-forwarded-for");
-  if (!xf) return "unknown";
-  return xf.split(",")[0]?.trim() || "unknown";
+function getTextField(form: FormData, name: string) {
+  const value = form.get(name);
+  return typeof value === "string" ? value.trim() : "";
 }
 
-export async function POST(req: Request) {
+function hasHeaderControlCharacters(value: string) {
+  return /[\u0000-\u001f\u007f]/.test(value);
+}
+
+function isValidEmail(value: string) {
+  if (value.length > 254 || hasHeaderControlCharacters(value)) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function addAllowedOrigin(origins: Set<string>, value: string | undefined) {
+  if (!value) return;
+
   try {
+    origins.add(new URL(value).origin);
+  } catch {
+    // Invalid optional deployment configuration is ignored here and handled
+    // separately by the relevant deployment check.
+  }
+}
+
+function isAllowedOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+
+  const allowedOrigins = new Set<string>();
+  addAllowedOrigin(allowedOrigins, request.url);
+  addAllowedOrigin(allowedOrigins, process.env.NEXT_PUBLIC_SITE_URL);
+
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) addAllowedOrigin(allowedOrigins, `https://${vercelUrl}`);
+
+  try {
+    return allowedOrigins.has(new URL(origin).origin);
+  } catch {
+    return false;
+  }
+}
+
+function getClientIp(request: Request) {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0]?.trim() || "unknown";
+
+  return request.headers.get("x-real-ip")?.trim() || "unknown";
+}
+
+function checkRateLimit(ip: string, now: number) {
+  const current = buckets.get(ip);
+
+  if (!current || current.resetAt <= now) {
+    buckets.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return { limited: false, retryAfter: 0 };
+  }
+
+  if (current.count >= MAX_PER_WINDOW) {
+    return {
+      limited: true,
+      retryAfter: Math.max(1, Math.ceil((current.resetAt - now) / 1000)),
+    };
+  }
+
+  current.count += 1;
+  return { limited: false, retryAfter: 0 };
+}
+
+function jsonMessage(
+  message: string,
+  status: number,
+  headers?: Record<string, string>
+) {
+  return NextResponse.json(
+    { ok: false, message },
+    { status, headers: { "Cache-Control": "no-store", ...headers } }
+  );
+}
+
+function jsonSuccess() {
+  return NextResponse.json(
+    { ok: true, message: SUCCESS_MESSAGE },
+    { headers: { "Cache-Control": "no-store" } }
+  );
+}
+
+export async function POST(request: Request) {
+  const requestId = crypto.randomUUID();
+
+  try {
+    if (!isAllowedOrigin(request)) {
+      return jsonMessage("This submission could not be accepted.", 403);
+    }
+
+    const contentType = request.headers.get("content-type")?.toLowerCase() || "";
+    if (
+      !contentType.startsWith("multipart/form-data") &&
+      !contentType.startsWith("application/x-www-form-urlencoded")
+    ) {
+      return jsonMessage("This submission could not be read.", 415);
+    }
+
+    const contentLength = Number(request.headers.get("content-length"));
+    if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+      return jsonMessage("This message is too large to submit.", 413);
+    }
+
+    let form: FormData;
+    try {
+      form = await request.formData();
+    } catch {
+      return jsonMessage("This submission could not be read.", 400);
+    }
+
+    const company = getTextField(form, "company");
+    if (company) return jsonSuccess();
+
+    const now = Date.now();
+    const submittedAt = Number(getTextField(form, "ts"));
+    if (!Number.isFinite(submittedAt) || submittedAt <= 0) {
+      return jsonMessage("Please refresh the page and try again.", 400);
+    }
+
+    const formAge = now - submittedAt;
+    if (formAge < MIN_SUBMIT_MS) return jsonSuccess();
+    if (formAge > MAX_FORM_AGE_MS) {
+      return jsonMessage("Please refresh the page and try again.", 400);
+    }
+
+    const rateLimit = checkRateLimit(getClientIp(request), now);
+    if (rateLimit.limited) {
+      return jsonMessage(
+        "Too many messages have been submitted. Please try again later.",
+        429,
+        { "Retry-After": String(rateLimit.retryAfter) }
+      );
+    }
+
+    const name = getTextField(form, "name");
+    const email = getTextField(form, "email");
+    const subject = getTextField(form, "subject");
+    const message = getTextField(form, "message");
+
+    if (name.length > 80) {
+      return jsonMessage("Name must be 80 characters or fewer.", 400);
+    }
+    if (hasHeaderControlCharacters(name)) {
+      return jsonMessage("Name contains unsupported characters.", 400);
+    }
+    if (!email) {
+      return jsonMessage("Email is required.", 400);
+    }
+    if (!isValidEmail(email)) {
+      return jsonMessage("Enter a valid email address.", 400);
+    }
+    if (subject.length > 120) {
+      return jsonMessage("Subject must be 120 characters or fewer.", 400);
+    }
+    if (hasHeaderControlCharacters(subject)) {
+      return jsonMessage("Subject contains unsupported characters.", 400);
+    }
+    if (!message) {
+      return jsonMessage("Message is required.", 400);
+    }
+    if (message.length > 5000) {
+      return jsonMessage("Message must be 5,000 characters or fewer.", 400);
+    }
+
     const resendKey = process.env.RESEND_API_KEY;
     if (!resendKey) {
-      return NextResponse.json({ ok: false, error: "Missing RESEND_API_KEY." }, { status: 500 });
+      console.error(`[contact:${requestId}] Resend is not configured.`);
+      return jsonMessage(DELIVERY_FAILURE_MESSAGE, 503);
     }
 
     const toEmail = process.env.CONTACT_TO_EMAIL || "fevernaofficial@gmail.com";
     const resend = new Resend(resendKey);
 
-    // Rate limit
-    const ip = getClientIp(req);
-    const now = Date.now();
-    const bucket = buckets.get(ip);
-
-    if (!bucket || bucket.resetAt < now) {
-      buckets.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    } else {
-      bucket.count += 1;
-      if (bucket.count > MAX_PER_WINDOW) {
-        return NextResponse.json(
-          { ok: false, error: "Too many messages. Please try again later." },
-          { status: 429 }
-        );
-      }
-    }
-
-    const form = await req.formData();
-
-    // Honeypot: if filled, pretend success (quietly discard)
-    const company = String(form.get("company") ?? "").trim();
-    if (company) {
-      return NextResponse.json({ ok: true });
-    }
-
-    // Time-to-submit check (bots often submit instantly)
-    const tsRaw = String(form.get("ts") ?? "").trim();
-    const ts = tsRaw ? Number(tsRaw) : NaN;
-    if (Number.isFinite(ts)) {
-      const elapsed = now - ts;
-      if (elapsed < 1500) {
-        // under 1.5s is suspicious
-        return NextResponse.json({ ok: true });
-      }
-    }
-
-    const name = String(form.get("name") ?? "").trim();
-    const email = String(form.get("email") ?? "").trim();
-    const subject = String(form.get("subject") ?? "").trim();
-    const message = String(form.get("message") ?? "").trim();
-
-    if (!email) {
-      return NextResponse.json({ ok: false, error: "Email is required." }, { status: 400 });
-    }
-    if (!message) {
-      return NextResponse.json({ ok: false, error: "Message is required." }, { status: 400 });
-    }
-
-    const safeName = escapeHtml(name || "Anonymous");
+    const displayName = name || "Anonymous";
+    const displaySubject = subject || "—";
+    const safeName = escapeHtml(displayName);
     const safeEmail = escapeHtml(email);
-    const safeSubject = escapeHtml(subject || "—");
+    const safeSubject = escapeHtml(displaySubject);
     const safeMessage = escapeHtml(message);
 
-    const finalSubject = `Hotel Feverna — Contact${name ? ` (${name})` : ""}${
-      subject ? `: ${subject}` : ""
-    }`;
+    const emailSubject = `Hotel Feverna — Contact${
+      name ? ` (${name})` : ""
+    }${subject ? `: ${subject}` : ""}`;
 
-    const { data, error } = await resend.emails.send({
+    const text = [
+      "New Contact Message",
+      "",
+      `Name: ${displayName}`,
+      `Email: ${email}`,
+      `Subject: ${displaySubject}`,
+      "",
+      "Message:",
+      message,
+      "",
+      "Submitted from the Feverna Contact page.",
+    ].join("\n");
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: [toEmail],
-      subject: finalSubject,
-      replyTo: email, // so you can hit “Reply” in Gmail and answer them directly
+      subject: emailSubject,
+      replyTo: email,
+      text,
       html: `
         <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; line-height: 1.5;">
-          <h2 style="margin: 0 0 12px;">New Contact Note</h2>
+          <h2 style="margin: 0 0 12px;">New Contact Message</h2>
           <p style="margin: 0 0 8px;"><strong>Name:</strong> ${safeName}</p>
           <p style="margin: 0 0 8px;"><strong>Email:</strong> ${safeEmail}</p>
           <p style="margin: 0 0 8px;"><strong>Subject:</strong> ${safeSubject}</p>
@@ -114,12 +249,19 @@ export async function POST(req: Request) {
     });
 
     if (error) {
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      console.error(`[contact:${requestId}] Resend delivery failed.`, {
+        name: error.name,
+        message: error.message,
+      });
+      return jsonMessage(DELIVERY_FAILURE_MESSAGE, 502);
     }
 
-    return NextResponse.json({ ok: true, id: data?.id });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Server error";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return jsonSuccess();
+  } catch (error) {
+    console.error(`[contact:${requestId}] Unexpected submission failure.`, {
+      name: error instanceof Error ? error.name : "UnknownError",
+      message: error instanceof Error ? error.message : "Unknown failure",
+    });
+    return jsonMessage(DELIVERY_FAILURE_MESSAGE, 500);
   }
 }

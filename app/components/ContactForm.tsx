@@ -4,159 +4,217 @@ import { useEffect, useRef, useState } from "react";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+type ContactResponse = {
+  ok: boolean;
+  message?: string;
+};
+
+const FIELD_CLASS =
+  "w-full rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-base text-white/85 placeholder:text-white/35 transition focus-visible:border-[rgba(166,142,109,0.75)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(166,142,109,0.9)] sm:rounded-full sm:px-5 sm:text-sm";
+
+const LABEL_CLASS =
+  "mb-2 block text-xs uppercase tracking-[0.16em] text-white/75";
+
+const FAILURE_MESSAGE =
+  "Your message could not be sent right now. Please try again later or use the direct email address.";
+
+function stampSubmissionTime(form: HTMLFormElement) {
+  const timestamp = form.querySelector<HTMLInputElement>('input[name="ts"]');
+  if (timestamp) timestamp.value = String(Date.now());
+}
+
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
   const [showFallback, setShowFallback] = useState(false);
-
-  // Delayed “reply may arrive…” line after success
-  const [showReplyNote, setShowReplyNote] = useState(false);
-
   const formRef = useRef<HTMLFormElement | null>(null);
+  const submittingRef = useRef(false);
 
   useEffect(() => {
-    // stamp to help detect instant bot submits
-    if (!formRef.current) return;
-    const ts = formRef.current.querySelector<HTMLInputElement>('input[name="ts"]');
-    if (ts) ts.value = String(Date.now());
+    if (formRef.current) stampSubmissionTime(formRef.current);
   }, []);
 
-  // When status becomes "sent", reveal the reply note after 2 seconds.
-  useEffect(() => {
-    if (status !== "sent") {
-      setShowReplyNote(false);
-      return;
-    }
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submittingRef.current) return;
 
-    const t = window.setTimeout(() => setShowReplyNote(true), 2000);
-    return () => window.clearTimeout(t);
-  }, [status]);
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+    submittingRef.current = true;
     setStatus("sending");
-    setError("");
-    setShowReplyNote(false);
+    setStatusMessage("Sending your message…");
 
-    const formEl = e.currentTarget;
-    const formData = new FormData(formEl);
+    const form = event.currentTarget;
+    let failureMessage = FAILURE_MESSAGE;
 
     try {
-      const res = await fetch("/api/contact", {
+      const response = await fetch("/api/contact", {
         method: "POST",
-        body: formData,
+        body: new FormData(form),
       });
 
-      const data = (await res.json()) as { ok: boolean; error?: string };
+      let data: ContactResponse | null = null;
+      try {
+        data = (await response.json()) as ContactResponse;
+      } catch {
+        // A non-JSON response is treated as a generic delivery failure below.
+      }
 
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "Unable to send right now.");
+      if (!response.ok || !data?.ok) {
+        failureMessage = data?.message || FAILURE_MESSAGE;
+        throw new Error("Contact submission failed");
       }
 
       setStatus("sent");
-      formEl.reset();
-
-      // re-stamp timestamp after reset
-      const ts = formEl.querySelector<HTMLInputElement>('input[name="ts"]');
-      if (ts) ts.value = String(Date.now());
-    } catch (err) {
+      setStatusMessage(
+        `${data.message || "Your message has been sent."} Replies may arrive from FevernaOfficial.`
+      );
+      form.reset();
+      stampSubmissionTime(form);
+    } catch {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Unable to send right now.");
+      setStatusMessage(failureMessage);
+    } finally {
+      submittingRef.current = false;
     }
   }
 
+  const isSending = status === "sending";
+
   return (
-    <div className="rounded-xl border border-white/10 bg-black/35 p-6">
+    <div className="rounded-xl border border-white/10 bg-black/35 p-4 sm:p-6">
       <h2 className="text-xs uppercase tracking-[0.22em] text-white/70">
         Leave a note
       </h2>
+      <p className="mt-2 text-xs leading-relaxed text-white/55">
+        Email and message are required. Your email is used only to reply.
+      </p>
 
-      <form ref={formRef} onSubmit={onSubmit} className="mt-4 space-y-4">
-        {/* Honeypot (bots will often fill it). Keep it out of view and out of tab order. */}
+      <form
+        ref={formRef}
+        onSubmit={onSubmit}
+        className="mt-5 space-y-5"
+        aria-busy={isSending}
+      >
         <div
           aria-hidden="true"
-          className="absolute left-[-10000px] top-auto w-px h-px overflow-hidden"
+          className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden"
         >
-          <label>
-            Company
-            <input name="company" tabIndex={-1} autoComplete="off" />
-          </label>
+          <label htmlFor="contact-company">Company</label>
+          <input
+            id="contact-company"
+            name="company"
+            tabIndex={-1}
+            autoComplete="off"
+          />
         </div>
 
-        {/* Timestamp field (helps detect insta-bot submits) */}
         <input type="hidden" name="ts" defaultValue="" />
 
-        <input
-          name="name"
-          placeholder="Name (optional)"
-          className="w-full rounded-full border border-white/15 bg-black/25 px-5 py-3 text-sm text-white/85 placeholder:text-white/40 outline-none focus:border-white/30"
-        />
+        <div>
+          <label htmlFor="contact-name" className={LABEL_CLASS}>
+            Name <span className="normal-case tracking-normal text-white/45">(optional)</span>
+          </label>
+          <input
+            id="contact-name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            maxLength={80}
+            disabled={isSending}
+            className={FIELD_CLASS}
+          />
+        </div>
 
-        <input
-          name="email"
-          type="email"
-          required
-          placeholder="Your email (required)"
-          className="w-full rounded-full border border-white/15 bg-black/25 px-5 py-3 text-sm text-white/85 placeholder:text-white/40 outline-none focus:border-white/30"
-        />
+        <div>
+          <label htmlFor="contact-email" className={LABEL_CLASS}>
+            Email <span className="normal-case tracking-normal text-fevernaGold">(required)</span>
+          </label>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            maxLength={254}
+            required
+            disabled={isSending}
+            className={FIELD_CLASS}
+          />
+        </div>
 
-        <input
-          name="subject"
-          placeholder="Subject (optional)"
-          className="w-full rounded-full border border-white/15 bg-black/25 px-5 py-3 text-sm text-white/85 placeholder:text-white/40 outline-none focus:border-white/30"
-        />
+        <div>
+          <label htmlFor="contact-subject" className={LABEL_CLASS}>
+            Subject <span className="normal-case tracking-normal text-white/45">(optional)</span>
+          </label>
+          <input
+            id="contact-subject"
+            name="subject"
+            type="text"
+            autoComplete="off"
+            maxLength={120}
+            disabled={isSending}
+            className={FIELD_CLASS}
+          />
+        </div>
 
-        <textarea
-          name="message"
-          required
-          placeholder="Message"
-          rows={6}
-          className="w-full rounded-2xl border border-white/15 bg-black/25 px-5 py-3 text-sm text-white/85 placeholder:text-white/40 outline-none focus:border-white/30 resize-none"
-        />
+        <div>
+          <label htmlFor="contact-message" className={LABEL_CLASS}>
+            Message <span className="normal-case tracking-normal text-fevernaGold">(required)</span>
+          </label>
+          <textarea
+            id="contact-message"
+            name="message"
+            required
+            maxLength={5000}
+            rows={7}
+            disabled={isSending}
+            className={`${FIELD_CLASS} resize-y rounded-2xl sm:rounded-2xl`}
+          />
+        </div>
 
         <button
           type="submit"
-          disabled={status === "sending"}
-          className="w-full rounded-full px-5 py-3 text-sm uppercase tracking-[0.18em] bg-[rgba(166,142,109,0.85)] text-black hover:bg-[rgba(166,142,109,0.95)] transition disabled:opacity-60"
+          disabled={isSending}
+          className="w-full rounded-full bg-[rgba(166,142,109,0.85)] px-5 py-3 text-sm uppercase tracking-[0.18em] text-black transition hover:bg-[rgba(166,142,109,0.95)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(238,208,160,0.95)] disabled:cursor-wait disabled:opacity-60"
         >
-          {status === "sending" ? "Sending…" : "Send"}
+          {isSending ? "Sending…" : "Send message"}
         </button>
 
-        {status === "sent" && (
-          <div className="text-center space-y-1">
-            <p className="fade-in-quick text-[11px] uppercase tracking-[0.18em] text-white/45">
-                Delivered to the desk. Replies may arrive from FevernaOfficial.
+        <div className="min-h-5 text-center" aria-atomic="true">
+          {(status === "sending" || status === "sent") && (
+            <p
+              role="status"
+              aria-live="polite"
+              className="text-xs leading-relaxed text-white/65"
+            >
+              {statusMessage}
             </p>
+          )}
 
-
-            {showReplyNote && (
-              <p className="fade-in-quick text-[11px] uppercase tracking-[0.18em] text-white/45">
-                Replies may arrive from FevernaOfficial.
-              </p>
-            )}
-          </div>
-        )}
-
-        {status === "error" && (
-          <p className="text-center text-xs text-red-300">{error}</p>
-        )}
+          {status === "error" && (
+            <p role="alert" className="text-xs leading-relaxed text-red-300">
+              {statusMessage}
+            </p>
+          )}
+        </div>
       </form>
 
-      <div className="mt-5 pt-5 border-t border-white/10 text-center">
+      <div className="mt-5 border-t border-white/10 pt-5 text-center">
         {!showFallback ? (
           <button
             type="button"
             onClick={() => setShowFallback(true)}
-            className="text-xs uppercase tracking-[0.2em] text-white/55 hover:text-fevernaGold transition"
+            aria-controls="contact-direct-address"
+            aria-expanded="false"
+            className="text-xs uppercase tracking-[0.2em] text-white/55 transition hover:text-fevernaGold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[rgba(238,208,160,0.95)]"
           >
-            If the desk is quiet, reveal the direct address
+            Reveal the direct address
           </button>
         ) : (
-          <p className="text-xs text-white/70">
+          <p id="contact-direct-address" className="text-xs text-white/70">
             Direct:{" "}
             <a
               href="mailto:contact@feverna.com"
-              className="hover:text-fevernaGold transition underline decoration-white/20 hover:decoration-fevernaGold/60 underline-offset-4"
+              className="underline decoration-white/20 underline-offset-4 transition hover:text-fevernaGold hover:decoration-fevernaGold/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[rgba(238,208,160,0.95)]"
             >
               contact@feverna.com
             </a>
