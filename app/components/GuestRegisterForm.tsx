@@ -1,85 +1,240 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+type GuestRegisterResponse = {
+  ok: boolean;
+  message?: string;
+};
+
+const FIELD_CLASS =
+  "w-full rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-base text-white/85 transition focus-visible:border-[rgba(166,142,109,0.75)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(166,142,109,0.9)] disabled:opacity-60 sm:rounded-full sm:px-5 sm:text-sm";
+
+const LABEL_CLASS =
+  "mb-1 block text-xs uppercase tracking-[0.16em] text-white/75";
+
+const DESCRIPTION_CLASS = "mb-2 text-xs leading-relaxed text-white/50";
+
+const FAILURE_MESSAGE =
+  "Your entry could not be delivered right now. Please try again later.";
+
+function stampSubmissionTime(form: HTMLFormElement) {
+  const timestamp = form.querySelector<HTMLInputElement>('input[name="ts"]');
+  if (timestamp) timestamp.value = String(Date.now());
+}
+
 export default function GuestRegisterForm() {
   const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState<string>("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const submittingRef = useRef(false);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  useEffect(() => {
+    if (formRef.current) stampSubmissionTime(formRef.current);
+  }, []);
+
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submittingRef.current) return;
+
+    submittingRef.current = true;
     setStatus("sending");
-    setError("");
+    setStatusMessage("Delivering your entry to the desk…");
 
-    const formEl = e.currentTarget;
-    const formData = new FormData(formEl);
+    const form = event.currentTarget;
+    let failureMessage = FAILURE_MESSAGE;
 
     try {
-      const res = await fetch("/api/guest-register", {
+      const response = await fetch("/api/guest-register", {
         method: "POST",
-        body: formData,
+        body: new FormData(form),
       });
 
-      const data = (await res.json()) as { ok: boolean; error?: string };
+      let data: GuestRegisterResponse | null = null;
+      try {
+        data = (await response.json()) as GuestRegisterResponse;
+      } catch {
+        // A non-JSON response is handled as a generic delivery failure below.
+      }
 
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "Unable to submit right now.");
+      if (!response.ok || !data?.ok) {
+        failureMessage = data?.message || FAILURE_MESSAGE;
+        throw new Error("Visitor's Book submission failed");
       }
 
       setStatus("sent");
-      formEl.reset();
-    } catch (err) {
+      setStatusMessage(
+        data.message ||
+          "Your entry has been delivered to the desk for manual review."
+      );
+      form.reset();
+      stampSubmissionTime(form);
+    } catch {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Unable to submit right now.");
+      setStatusMessage(failureMessage);
+    } finally {
+      submittingRef.current = false;
     }
   }
 
+  const isSending = status === "sending";
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <input
-        name="name"
-        placeholder="Name (optional)"
-        className="w-full rounded-full border border-white/15 bg-black/25 px-5 py-3 text-sm text-white/85 placeholder:text-white/40 outline-none focus:border-white/30"
-      />
-
-      <input
-        name="room"
-        placeholder="Room Number (optional)"
-        className="w-full rounded-full border border-white/15 bg-black/25 px-5 py-3 text-sm text-white/85 placeholder:text-white/40 outline-none focus:border-white/30"
-      />
-
-      <textarea
-        name="message"
-        required
-        placeholder="Memory or Message"
-        rows={4}
-        className="w-full rounded-2xl border border-white/15 bg-black/25 px-5 py-3 text-sm text-white/85 placeholder:text-white/40 outline-none focus:border-white/30 resize-none"
-      />
-
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="w-full rounded-full px-5 py-3 text-sm uppercase tracking-[0.18em] bg-[rgba(166,142,109,0.85)] text-black hover:bg-[rgba(166,142,109,0.95)] transition disabled:opacity-60"
-      >
-        {status === "sending" ? "Submitting…" : "Submit"}
-      </button>
-
-      {/* Tiny UX note (no email field; visitor can include it inside message if desired) */}
-      <p className="text-center text-[11px] text-white/55 leading-relaxed">
-        If you’d like a reply, include an email address inside your message.
-      </p>
-
-      {status === "sent" && (
-        <p className="text-center text-xs text-white/70">
-          Your entry has been delivered to the desk for approval.
+    <>
+      <div>
+        <h2 className="text-xs uppercase tracking-[0.22em] text-white/70">
+          Sign the Visitor&apos;s Book
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-white/75">
+          Entries are reviewed manually. They do not appear immediately, and
+          not every submission is published.
         </p>
-      )}
+        <p className="mt-2 text-xs leading-relaxed text-white/55">
+          Email is optional and private. It will never appear in a published
+          entry. Please keep email addresses and other private contact details
+          out of the public message.
+        </p>
+      </div>
 
-      {status === "error" && (
-        <p className="text-center text-xs text-red-300">{error}</p>
-      )}
-    </form>
+      <form
+        ref={formRef}
+        onSubmit={onSubmit}
+        className="mt-5 space-y-5"
+        aria-busy={isSending}
+      >
+        <div
+          aria-hidden="true"
+          className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden"
+        >
+          <label htmlFor="guest-company">Company</label>
+          <input
+            id="guest-company"
+            name="company"
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
+        <input type="hidden" name="ts" defaultValue="" />
+
+        <div>
+          <label htmlFor="guest-name" className={LABEL_CLASS}>
+            Name{" "}
+            <span className="normal-case tracking-normal text-white/45">
+              (optional)
+            </span>
+          </label>
+          <p id="guest-name-description" className={DESCRIPTION_CLASS}>
+            May appear with your entry if approved.
+          </p>
+          <input
+            id="guest-name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            maxLength={80}
+            disabled={isSending}
+            aria-describedby="guest-name-description"
+            className={FIELD_CLASS}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="guest-room" className={LABEL_CLASS}>
+            Room or place{" "}
+            <span className="normal-case tracking-normal text-white/45">
+              (optional)
+            </span>
+          </label>
+          <p id="guest-room-description" className={DESCRIPTION_CLASS}>
+            May appear alongside your published entry.
+          </p>
+          <input
+            id="guest-room"
+            name="room"
+            type="text"
+            autoComplete="off"
+            maxLength={80}
+            disabled={isSending}
+            aria-describedby="guest-room-description"
+            className={FIELD_CLASS}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="guest-email" className={LABEL_CLASS}>
+            Private email{" "}
+            <span className="normal-case tracking-normal text-white/45">
+              (optional)
+            </span>
+          </label>
+          <p id="guest-email-description" className={DESCRIPTION_CLASS}>
+            For a private reply only. Never displayed publicly.
+          </p>
+          <input
+            id="guest-email"
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            maxLength={254}
+            disabled={isSending}
+            aria-describedby="guest-email-description"
+            className={FIELD_CLASS}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="guest-message" className={LABEL_CLASS}>
+            Memory or message{" "}
+            <span className="normal-case tracking-normal text-fevernaGold">
+              (required)
+            </span>
+          </label>
+          <p id="guest-message-description" className={DESCRIPTION_CLASS}>
+            Your words may appear in the Visitor&apos;s Book after approval.
+            Please omit private contact details.
+          </p>
+          <textarea
+            id="guest-message"
+            name="message"
+            required
+            maxLength={2000}
+            rows={6}
+            disabled={isSending}
+            aria-describedby="guest-message-description"
+            className={`${FIELD_CLASS} resize-y rounded-2xl sm:rounded-2xl`}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSending}
+          className="w-full rounded-full bg-[rgba(166,142,109,0.85)] px-5 py-3 text-sm uppercase tracking-[0.18em] text-black transition hover:bg-[rgba(166,142,109,0.95)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(238,208,160,0.95)] disabled:cursor-wait disabled:opacity-60"
+        >
+          {isSending ? "Delivering…" : "Leave your entry"}
+        </button>
+
+        <div className="min-h-5 text-center" aria-atomic="true">
+          {(status === "sending" || status === "sent") && (
+            <p
+              role="status"
+              aria-live="polite"
+              className="text-xs leading-relaxed text-white/70"
+            >
+              {statusMessage}
+            </p>
+          )}
+
+          {status === "error" && (
+            <p role="alert" className="text-xs leading-relaxed text-red-300">
+              {statusMessage}
+            </p>
+          )}
+        </div>
+      </form>
+    </>
   );
 }

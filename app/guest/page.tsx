@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import GuestRegisterForm from "../components/GuestRegisterForm";
 import { ROUTES } from "../routes";
+import { approvedVisitorEntries } from "./approvedEntries";
 
 export const metadata: Metadata = {
   title: "Guest Register | Hotel Feverna",
@@ -35,7 +36,7 @@ export default function GuestRegisterPage() {
       <div
         className="relative z-10 w-full flex justify-center px-6"
         style={{
-          paddingTop: "clamp(120px, 18vh, 300px)",
+          paddingTop: "clamp(72px, 10vh, 128px)",
           paddingBottom: "clamp(48px, 8vh, 96px)",
         }}
       >
@@ -49,7 +50,7 @@ export default function GuestRegisterPage() {
           "
         >
           <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            {/* Left: myth + sample entry */}
+            {/* Left: welcome and manually approved visitor entries */}
             <div className="rounded-xl border border-white/10 bg-black/35 p-6">
               <h2 className="text-xs uppercase tracking-[0.22em] text-white/70">
                 A note from the desk
@@ -61,17 +62,27 @@ export default function GuestRegisterPage() {
                 are returned to the guest.
               </p>
 
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <p className="text-sm text-white/75 italic leading-relaxed">
-                  “I wanted to be held a little bit longer.”
-                </p>
-                <p className="mt-2 text-sm text-white/65">
-                  — Abby, <span className="text-fevernaGold">Solarium</span>
-                </p>
+              <div className="mt-6 border-t border-white/10 pt-6">
+                {approvedVisitorEntries.map((entry, index) => (
+                  <article
+                    key={entry.id}
+                    className={
+                      index === 0 ? undefined : "mt-6 border-t border-white/10 pt-6"
+                    }
+                  >
+                    <p className="text-sm text-white/75 italic leading-relaxed">
+                      {entry.quotation}
+                    </p>
+                    <p className="mt-2 text-sm text-white/65">
+                      — {entry.name},{" "}
+                      <span className="text-fevernaGold">{entry.location}</span>
+                    </p>
+                  </article>
+                ))}
               </div>
 
               <p className="mt-6 text-xs text-white/55">
-                (Entries appear in time, once the ink dries.)
+                Approved entries are added to the register from time to time.
               </p>
             </div>
 
