@@ -357,6 +357,67 @@ a {
   outline-offset: 3px;
 }
 
+.atmosphere-hint {
+  position: fixed;
+  top: calc(max(0.7rem, env(safe-area-inset-top)) + 2.8rem);
+  right: max(0.7rem, env(safe-area-inset-right));
+  z-index: 99999;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  width: min(18rem, calc(100vw - 1.4rem));
+  pointer-events: none;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.8rem 0.85rem;
+  border: 1px solid rgba(213, 181, 128, 0.24);
+  border-radius: 0.65rem;
+  background: rgba(7, 6, 5, 0.88);
+  box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.38);
+  color: rgba(235, 220, 198, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.atmosphere-hint-title {
+  color: rgba(238, 211, 169, 0.9);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.atmosphere-hint-description {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.atmosphere-hint-dismiss {
+  pointer-events: auto;
+  cursor: pointer;
+  border: 1px solid rgba(213, 181, 128, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 0.35rem 0.5rem;
+  color: rgba(235, 220, 198, 0.68);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 160ms ease, border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.atmosphere-hint-dismiss:hover,
+.atmosphere-hint-dismiss:focus-visible {
+  border-color: rgba(235, 205, 154, 0.58);
+  background: rgba(166, 142, 109, 0.12);
+  color: #f2dab0;
+}
+
+.atmosphere-hint-dismiss:focus-visible {
+  outline: 2px solid rgba(244, 211, 154, 0.9);
+  outline-offset: 2px;
+}
+
 @media (max-width: 480px) {
   .site-footer {
     gap: 0.45rem;
@@ -372,6 +433,18 @@ a {
   .site-footer-panel {
     right: -0.25rem;
   }
+
+  .atmosphere-hint {
+    right: max(0.7rem, env(safe-area-inset-right));
+    left: auto;
+    grid-template-columns: 1fr;
+    width: min(15.5rem, calc(100vw - 1.4rem));
+    gap: 0.6rem;
+  }
+
+  .atmosphere-hint-dismiss {
+    justify-self: start;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -384,7 +457,8 @@ a {
 
   .site-footer-link,
   .site-footer-external-link,
-  .atmosphere-toggle {
+  .atmosphere-toggle,
+  .atmosphere-hint-dismiss {
     transition: none;
   }
 }

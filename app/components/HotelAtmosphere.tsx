@@ -9,6 +9,7 @@ import {
 } from "../lib/atmosphere";
 
 const INTERIOR_VOLUME = 0.18;
+const SOUND_HINT_STORAGE_KEY = "feverna.soundGuidanceDismissed.v1";
 
 function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
@@ -24,6 +25,14 @@ export default function HotelAtmosphere() {
   const enabledRef = useRef(true);
 
   const [enabled, setEnabled] = useState(true);
+  const [soundHintState, setSoundHintState] = useState<
+    "pending" | "visible" | "dismissed"
+  >("pending");
+
+  const isSoundHintRoute = useMemo(
+    () => pathname === "/" || pathname.startsWith("/library"),
+    [pathname]
+  );
 
   // Lobby + hallways + elevator are always breath zones.
   // Canon room routes are also breath zones until "Remain" triggers fadeOut.
@@ -38,6 +47,23 @@ export default function HotelAtmosphere() {
       pathname.startsWith("/next-current")
     );
   }, [pathname]);
+
+  useEffect(() => {
+    if (!isSoundHintRoute || soundHintState !== "pending") return;
+
+    let isDismissed = false;
+    try {
+      isDismissed = window.localStorage.getItem(SOUND_HINT_STORAGE_KEY) === "1";
+    } catch {
+      // The hint can still be dismissed for this page session without storage.
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      setSoundHintState(isDismissed ? "dismissed" : "visible");
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [isSoundHintRoute, soundHintState]);
 
   const cancelRaf = useCallback(() => {
     if (rafRef.current !== null) {
@@ -119,6 +145,15 @@ export default function HotelAtmosphere() {
       } else {
         void ensureStarted(true);
       }
+    }
+  }
+
+  function dismissSoundHint() {
+    setSoundHintState("dismissed");
+    try {
+      window.localStorage.setItem(SOUND_HINT_STORAGE_KEY, "1");
+    } catch {
+      // Keep the in-memory dismissal when storage is unavailable.
     }
   }
 
@@ -257,6 +292,40 @@ export default function HotelAtmosphere() {
       >
         Sound {enabled ? "on" : "off"}
       </button>
+      {isSoundHintRoute && soundHintState === "visible" ? (
+        <aside
+          className="atmosphere-hint fade-in-quick"
+          style={{ pointerEvents: "none" }}
+          aria-labelledby="sound-recommendation-title"
+          aria-describedby="sound-recommendation-description"
+        >
+          <div>
+            <p
+              id="sound-recommendation-title"
+              className="atmosphere-hint-title"
+            >
+              Sound recommended
+            </p>
+            <p
+              id="sound-recommendation-description"
+              className="atmosphere-hint-description"
+            >
+              For the fullest experience, enable sound here and on your device.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="atmosphere-hint-dismiss"
+            style={{ pointerEvents: "auto" }}
+            onClick={dismissSoundHint}
+            onPointerDown={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+            aria-label="Dismiss sound recommendation"
+          >
+            Dismiss
+          </button>
+        </aside>
+      ) : null}
     </>
   );
 }

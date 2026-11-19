@@ -92,6 +92,25 @@ export default function AboutPage() {
 
           <section className="space-y-4 border-t border-white/10 pt-8">
             <h2 className="font-serif text-xl font-normal tracking-[0.08em] text-fevernaGold md:text-2xl">
+              A Note on Sound
+            </h2>
+
+            <p>Hotel Feverna is best experienced with sound.</p>
+
+            <p>
+              Its rooms have their own quiet atmospheres, and music is woven
+              throughout the larger Feverna world. For the fullest experience,
+              enable sound in the hotel and on your device.
+            </p>
+
+            <p>
+              Audio begins after your first interaction with the site, and you
+              are always free to turn it off.
+            </p>
+          </section>
+
+          <section className="space-y-4 border-t border-white/10 pt-8">
+            <h2 className="font-serif text-xl font-normal tracking-[0.08em] text-fevernaGold md:text-2xl">
               Behind Feverna
             </h2>
 
