@@ -7,6 +7,10 @@ import { ROUTES } from "../routes";
 export const metadata: Metadata = {
   title: "Guest Register | Hotel Feverna",
   description: "Leave a name, a room, a memory. The desk will review your entry.",
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
 export default function GuestRegisterPage() {
@@ -82,26 +86,7 @@ export default function GuestRegisterPage() {
                 >
                   Lobby
                 </Link>
-
-                <Link
-                  href={ROUTES.hallway0}
-                  className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm uppercase tracking-[0.18em] border border-white/15 hover:border-white/25 transition"
-                >
-                  Rooms
-                </Link>
               </div>
-
-              {/* Quiet in-world service link */}
-              <p className="mt-4 text-center text-[11px] uppercase tracking-[0.18em] text-white/45">
-                Lost &amp; Found inquiries are kept in the{" "}
-                <Link
-                  href={ROUTES.lostFound}
-                  className="text-fevernaGold/85 underline underline-offset-4 hover:text-fevernaGold transition"
-                >
-                  ledger
-                </Link>
-                .
-              </p>
             </div>
           </section>
         </div>

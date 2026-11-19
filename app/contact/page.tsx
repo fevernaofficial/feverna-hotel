@@ -60,13 +60,6 @@ export default function ContactPage() {
 
           <nav className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Link
-              href="/hallway0"
-              className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 transition text-sm uppercase tracking-[0.18em]"
-            >
-              Enter the Rooms
-            </Link>
-
-            <Link
               href="/guest"
               className="inline-flex items-center justify-center px-5 py-3 rounded-md border border-white/15 hover:border-white/25 transition text-sm uppercase tracking-[0.18em]"
             >

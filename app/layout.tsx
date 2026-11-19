@@ -54,22 +54,74 @@ export default function RootLayout({
             aria-label="Hotel information"
           >
             <Link href="/about" className="site-footer-link">
-              About
-            </Link>
-            <Link href="/caretaker" className="site-footer-link">
-              Caretaker
+              About Feverna
             </Link>
             <Link href="/contact" className="site-footer-link">
               Contact
             </Link>
-            <a
-              href="https://linktr.ee/fevernaofficial"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="site-footer-link"
-            >
-              Socials
-            </a>
+            <details className="site-footer-disclosure">
+              <summary className="site-footer-link">Music &amp; Films</summary>
+              <div
+                className="site-footer-panel"
+                aria-label="Feverna music and films"
+              >
+                <a
+                  href="https://www.youtube.com/@Fevernaofficial"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-footer-external-link"
+                >
+                  <span>Feverna — YouTube</span>
+                  <span className="site-footer-external-label">
+                    External <span aria-hidden="true">↗</span>
+                  </span>
+                </a>
+                <a
+                  href="https://www.youtube.com/@VelvetNocturne7"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-footer-external-link"
+                >
+                  <span>Velvet Nocturne</span>
+                  <span className="site-footer-external-label">
+                    External <span aria-hidden="true">↗</span>
+                  </span>
+                </a>
+                <a
+                  href="https://www.youtube.com/@FevernaCaretakersNocturne"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-footer-external-link"
+                >
+                  <span>Caretaker&apos;s Nocturne</span>
+                  <span className="site-footer-external-label">
+                    External <span aria-hidden="true">↗</span>
+                  </span>
+                </a>
+                <a
+                  href="https://feverna.bandcamp.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-footer-external-link"
+                >
+                  <span>Bandcamp</span>
+                  <span className="site-footer-external-label">
+                    External <span aria-hidden="true">↗</span>
+                  </span>
+                </a>
+                <a
+                  href="https://soundcloud.com/fevernaofficial"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-footer-external-link"
+                >
+                  <span>SoundCloud</span>
+                  <span className="site-footer-external-label">
+                    External <span aria-hidden="true">↗</span>
+                  </span>
+                </a>
+              </div>
+            </details>
           </footer>
         </div>
       </body>

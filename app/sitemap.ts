@@ -17,21 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     "/",
     "/library",
-    "/desk",
-    "/guest",
-    "/gift",
-    "/contact",
     "/about",
-    "/caretaker",
-    "/hallway0",
-    "/hallway1",
-    "/hallway2",
-    "/elevator",
-    "/boiler",
-    "/chapel",
-    "/courtyard",
-    "/solarium",
-    "/ballroom",
+    "/contact",
   ] as const;
 
   return routes.map((path) => ({

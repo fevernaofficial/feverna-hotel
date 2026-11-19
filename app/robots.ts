@@ -22,17 +22,9 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [
-          // Keep ARG / hidden mechanics out of search results
-          "/lost-and-found",
-          "/lost-and-found/*",
-
           // Keep API endpoints out of search results
           "/api",
           "/api/*",
-
-          // Optional: keep form page out of search results (your call)
-          "/guest",
-          "/guest/*",
         ],
       },
     ],

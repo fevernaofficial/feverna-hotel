@@ -64,17 +64,10 @@ export default function NotFound() {
           </Link>
 
           <Link
-            href="/hallway0"
-            className="feverna-btn w-full sm:w-auto text-center"
-          >
-            To the Rooms
-          </Link>
-
-          <Link
             href="/contact"
             className="feverna-btn w-full sm:w-auto text-center"
           >
-            Notify the Caretaker
+            Contact
           </Link>
         </nav>
 

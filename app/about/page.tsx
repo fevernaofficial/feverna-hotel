@@ -1,5 +1,10 @@
-// app/about/page.tsx
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "About Feverna | Hotel Feverna",
+  description: "About Hotel Feverna and the creative project behind its doors.",
+};
 
 export default function AboutPage() {
   return (
@@ -52,10 +57,6 @@ export default function AboutPage() {
         </section>
 
         <nav className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-          <Link href="/hallway0" className="feverna-btn w-full sm:w-auto text-center">
-            Enter the Rooms
-          </Link>
-
           <Link href="/guest" className="feverna-btn w-full sm:w-auto text-center">
             Sign the Guest Register
           </Link>
