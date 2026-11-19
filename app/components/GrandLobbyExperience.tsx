@@ -12,6 +12,16 @@ import styles from "./GrandLobbyExperience.module.css";
 
 type LobbyView = "lobby" | "exterior";
 
+const CARETAKER_WELCOME = {
+  title: "A Note from the Caretaker",
+  paragraphs: [
+    "Welcome to Hotel Feverna.",
+    "The Library is open, should you care for a quiet place to sit. You're also welcome to leave a few words in the Visitor's Book here at the desk.",
+    "Please make yourself comfortable. There is no need to hurry.",
+  ],
+  signature: "— The Caretaker",
+} as const;
+
 const SCENES = {
   lobby: {
     label: "The Grand Lobby",
@@ -145,11 +155,13 @@ export default function GrandLobbyExperience() {
             </button>
 
             <p className={styles.eyebrow}>Reception</p>
-            <h2 id="reception-title">Welcome to Hotel Feverna.</h2>
-            <p>
-              The desk is quiet for now. You may leave your name, a room, or a
-              memory in the Visitor&apos;s Book.
-            </p>
+            <h2 id="reception-title">{CARETAKER_WELCOME.title}</h2>
+            <div className={styles.receptionMessage}>
+              {CARETAKER_WELCOME.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+              <p className={styles.signature}>{CARETAKER_WELCOME.signature}</p>
+            </div>
             <Link className={styles.primaryLink} href={ROUTES.guest}>
               Open the Visitor&apos;s Book
             </Link>

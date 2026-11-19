@@ -5,6 +5,7 @@
   min-height: calc(100svh - var(--footer-h) - env(safe-area-inset-bottom));
   flex-direction: column;
   overflow: hidden;
+  overscroll-behavior: none;
   background: #090706;
   color: rgba(255, 250, 241, 0.92);
   isolation: isolate;
@@ -95,11 +96,26 @@
   letter-spacing: 0.035em;
 }
 
-.receptionPanel > p:not(.eyebrow) {
-  margin: 0.65rem 0 1rem;
+.receptionMessage {
+  margin: 0.7rem 0 1rem;
+}
+
+.receptionMessage p {
+  margin: 0.55rem 0 0;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.82rem;
   line-height: 1.55;
+}
+
+.receptionMessage p:first-child {
+  margin-top: 0;
+}
+
+.receptionMessage .signature {
+  margin-top: 0.8rem;
+  color: rgba(222, 188, 129, 0.78);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
 }
 
 .eyebrow {
