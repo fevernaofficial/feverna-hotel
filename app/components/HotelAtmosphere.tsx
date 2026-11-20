@@ -10,6 +10,7 @@ import {
 
 const INTERIOR_VOLUME = 0.18;
 const SOUND_HINT_STORAGE_KEY = "feverna.soundGuidanceDismissed.v1";
+const INTERIOR_MARKER_SELECTOR = '[data-hotel-atmosphere="interior"]';
 
 function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
@@ -47,6 +48,13 @@ export default function HotelAtmosphere() {
       pathname.startsWith("/next-current")
     );
   }, [pathname]);
+
+  const isCurrentInterior = useCallback(() => {
+    return (
+      isInteriorRoute ||
+      document.querySelector(INTERIOR_MARKER_SELECTOR) !== null
+    );
+  }, [isInteriorRoute]);
 
   useEffect(() => {
     if (!isSoundHintRoute || soundHintState !== "pending") return;
@@ -162,7 +170,7 @@ export default function HotelAtmosphere() {
     if (!enabled) return;
 
     const onFirstGesture = () => {
-      if (!isInteriorRoute || environmentRef.current === "exterior") return;
+      if (!isCurrentInterior() || environmentRef.current === "exterior") return;
       ensureStarted();
       window.removeEventListener("pointerdown", onFirstGesture);
       window.removeEventListener("keydown", onFirstGesture);
@@ -175,14 +183,15 @@ export default function HotelAtmosphere() {
       window.removeEventListener("pointerdown", onFirstGesture);
       window.removeEventListener("keydown", onFirstGesture);
     };
-  }, [enabled, ensureStarted, isInteriorRoute]);
+  }, [enabled, ensureStarted, isCurrentInterior]);
 
   // Fade out when leaving breath zones; fade in when returning
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
 
-    environmentRef.current = isInteriorRoute ? "interior" : "exterior";
+    const isInteriorEnvironment = isCurrentInterior();
+    environmentRef.current = isInteriorEnvironment ? "interior" : "exterior";
 
     if (!enabledRef.current) {
       cancelRaf();
@@ -190,7 +199,7 @@ export default function HotelAtmosphere() {
       return;
     }
 
-    if (!isInteriorRoute) {
+    if (!isInteriorEnvironment) {
       fadeTo(0, 5.0);
       return;
     }
@@ -201,7 +210,7 @@ export default function HotelAtmosphere() {
       } catch {}
       fadeTo(INTERIOR_VOLUME, 2.0);
     }
-  }, [cancelRaf, fadeTo, isInteriorRoute, pathname]);
+  }, [cancelRaf, fadeTo, isCurrentInterior, pathname]);
 
   // Respond to room events (fade out/in)
   useEffect(() => {

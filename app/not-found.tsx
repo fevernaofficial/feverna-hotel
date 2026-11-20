@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <main
+      data-hotel-atmosphere="interior"
       className="relative w-full min-h-screen bg-black overflow-hidden flex items-center justify-center px-6 py-10"
       style={{
         backgroundImage: "url('/images/not-found.webp')",

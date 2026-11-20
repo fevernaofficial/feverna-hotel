@@ -9,8 +9,12 @@ type ContactResponse = {
   message?: string;
 };
 
-const FIELD_CLASS =
-  "w-full rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-base text-white/85 placeholder:text-white/35 transition focus-visible:border-[rgba(166,142,109,0.75)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(166,142,109,0.9)] sm:rounded-full sm:px-5 sm:text-sm";
+const CONTROL_CLASS =
+  "w-full border border-white/15 bg-black/25 text-base text-white/85 placeholder:text-white/35 transition focus-visible:border-[rgba(166,142,109,0.75)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(166,142,109,0.9)] sm:text-sm";
+
+const FIELD_CLASS = `${CONTROL_CLASS} rounded-xl px-4 py-3 sm:rounded-full sm:px-5`;
+
+const TEXTAREA_CLASS = `${CONTROL_CLASS} resize-y rounded-2xl px-6 py-5 leading-relaxed sm:rounded-full sm:px-12 sm:py-8`;
 
 const LABEL_CLASS =
   "mb-2 block text-xs uppercase tracking-[0.16em] text-white/75";
@@ -167,7 +171,7 @@ export default function ContactForm() {
             maxLength={5000}
             rows={7}
             disabled={isSending}
-            className={`${FIELD_CLASS} resize-y rounded-2xl sm:rounded-2xl`}
+            className={TEXTAREA_CLASS}
           />
         </div>
 
