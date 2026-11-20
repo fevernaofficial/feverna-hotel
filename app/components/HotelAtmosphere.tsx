@@ -9,6 +9,12 @@ import {
 } from "../lib/atmosphere";
 
 const INTERIOR_VOLUME = 0.18;
+const AUDIO_URL = "/audio/breath.mp3";
+// These points remove only the unmatched MP3 edges (about 4.5 ms from the
+// start and 33.8 ms from the end). They align closely at both common Web
+// Audio output rates (44.1 and 48 kHz) without changing the recording.
+const LOOP_START_SECONDS = 0.0045;
+const LOOP_END_SECONDS = 7.318456916099773;
 const SOUND_HINT_STORAGE_KEY = "feverna.soundGuidanceDismissed.v1";
 const INTERIOR_MARKER_SELECTOR = '[data-hotel-atmosphere="interior"]';
 
@@ -19,7 +25,13 @@ function clamp01(n: number) {
 export default function HotelAtmosphere() {
   const pathname = usePathname();
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
+  const audioDataPromiseRef = useRef<Promise<ArrayBuffer> | null>(null);
+  const sourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
+  const startPromiseRef = useRef<Promise<void> | null>(null);
+  const currentVolumeRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const startedRef = useRef(false);
   const environmentRef = useRef<AtmosphereEnvironment>("interior");
@@ -80,13 +92,29 @@ export default function HotelAtmosphere() {
     }
   }, []);
 
+  const loadAudioData = useCallback(() => {
+    if (!audioDataPromiseRef.current) {
+      audioDataPromiseRef.current = fetch(AUDIO_URL).then((response) => {
+        if (!response.ok) {
+          throw new Error("Hotel atmosphere audio could not be loaded.");
+        }
+        return response.arrayBuffer();
+      }).catch((error) => {
+        audioDataPromiseRef.current = null;
+        throw error;
+      });
+    }
+
+    return audioDataPromiseRef.current;
+  }, []);
+
   const fadeTo = useCallback((target: number, seconds: number) => {
-    const el = audioRef.current;
-    if (!el) return;
+    const gain = gainRef.current;
+    if (!gain) return;
 
     cancelRaf();
 
-    const startVol = el.volume;
+    const startVol = currentVolumeRef.current;
     const endVol = clamp01(target);
     const durationMs = Math.max(50, seconds * 1000);
     const start = performance.now();
@@ -94,13 +122,14 @@ export default function HotelAtmosphere() {
     const tick = (now: number) => {
       const t = clamp01((now - start) / durationMs);
       const eased = 1 - Math.pow(1 - t, 3); // ease-out
-      el.volume = startVol + (endVol - startVol) * eased;
+      const nextVolume = startVol + (endVol - startVol) * eased;
+      currentVolumeRef.current = nextVolume;
+      gain.gain.value = nextVolume;
 
       if (t < 1) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         rafRef.current = null;
-        if (endVol === 0) el.pause();
       }
     };
 
@@ -108,34 +137,90 @@ export default function HotelAtmosphere() {
   }, [cancelRaf]);
 
   const ensureStarted = useCallback(async (force = false) => {
-    const el = audioRef.current;
-    if (!el) return;
-    if (!enabled && !force) return;
-    if (startedRef.current) return;
+    if (!enabledRef.current && !force) return;
 
-    startedRef.current = true;
+    if (startedRef.current) {
+      const context = audioContextRef.current;
+      if (context?.state === "suspended") {
+        await context.resume().catch(() => {});
+      }
+      return;
+    }
+
+    if (startPromiseRef.current) {
+      await startPromiseRef.current;
+      return;
+    }
+
+    const startPlayback = async () => {
+      let context = audioContextRef.current;
+      if (!context || context.state === "closed") {
+        context = new AudioContext();
+        audioContextRef.current = context;
+
+        const gain = context.createGain();
+        gain.gain.value = 0;
+        gain.connect(context.destination);
+        gainRef.current = gain;
+        currentVolumeRef.current = 0;
+      }
+
+      await context.resume();
+
+      let buffer = audioBufferRef.current;
+      if (!buffer) {
+        const audioData = await loadAudioData();
+        buffer = await context.decodeAudioData(audioData.slice(0));
+        audioBufferRef.current = buffer;
+      }
+
+      if (startedRef.current) return;
+
+      const source = context.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      source.loopStart = LOOP_START_SECONDS;
+      source.loopEnd = Math.min(LOOP_END_SECONDS, buffer.duration);
+      source.connect(gainRef.current!);
+      source.onended = () => {
+        if (sourceRef.current === source) {
+          sourceRef.current = null;
+          startedRef.current = false;
+        }
+      };
+      source.start(0, LOOP_START_SECONDS);
+      sourceRef.current = source;
+      startedRef.current = true;
+
+      if (
+        enabledRef.current &&
+        environmentRef.current === "interior"
+      ) {
+        fadeTo(INTERIOR_VOLUME, 2.0);
+      }
+    };
+
+    const startPromise = startPlayback();
+    startPromiseRef.current = startPromise;
 
     try {
-      el.loop = true;
-      el.volume = 0;
-      await el.play();
-      if (environmentRef.current === "exterior") {
-        el.pause();
-        return;
-      }
-      fadeTo(INTERIOR_VOLUME, 2.0);
+      await startPromise;
     } catch {
       startedRef.current = false;
+    } finally {
+      if (startPromiseRef.current === startPromise) {
+        startPromiseRef.current = null;
+      }
     }
-  }, [enabled, fadeTo]);
+  }, [fadeTo, loadAudioData]);
 
   function toggleSound() {
     if (enabled) {
       enabledRef.current = false;
       cancelRaf();
-      const el = audioRef.current;
-      if (el) {
-        el.pause();
+      currentVolumeRef.current = 0;
+      if (gainRef.current) {
+        gainRef.current.gain.value = 0;
       }
       setEnabled(false);
       return;
@@ -144,11 +229,8 @@ export default function HotelAtmosphere() {
     enabledRef.current = true;
     setEnabled(true);
     if (environmentRef.current === "interior") {
-      const el = audioRef.current;
-      if (startedRef.current && el) {
-        try {
-          el.play().catch(() => {});
-        } catch {}
+      if (startedRef.current) {
+        audioContextRef.current?.resume().catch(() => {});
         fadeTo(INTERIOR_VOLUME, 1.2);
       } else {
         void ensureStarted(true);
@@ -187,15 +269,15 @@ export default function HotelAtmosphere() {
 
   // Fade out when leaving breath zones; fade in when returning
   useEffect(() => {
-    const el = audioRef.current;
-    if (!el) return;
-
     const isInteriorEnvironment = isCurrentInterior();
     environmentRef.current = isInteriorEnvironment ? "interior" : "exterior";
 
     if (!enabledRef.current) {
       cancelRaf();
-      el.pause();
+      currentVolumeRef.current = 0;
+      if (gainRef.current) {
+        gainRef.current.gain.value = 0;
+      }
       return;
     }
 
@@ -205,9 +287,7 @@ export default function HotelAtmosphere() {
     }
 
     if (startedRef.current) {
-      try {
-        el.play().catch(() => {});
-      } catch {}
+      audioContextRef.current?.resume().catch(() => {});
       fadeTo(INTERIOR_VOLUME, 2.0);
     }
   }, [cancelRaf, fadeTo, isCurrentInterior, pathname]);
@@ -215,9 +295,6 @@ export default function HotelAtmosphere() {
   // Respond to room events (fade out/in)
   useEffect(() => {
     const handler = (e: Event) => {
-      const el = audioRef.current;
-      if (!el) return;
-
       const detail = (e as CustomEvent<AtmosphereEvent>).detail;
       if (!detail) return;
 
@@ -235,9 +312,7 @@ export default function HotelAtmosphere() {
           void ensureStarted();
           return;
         }
-        try {
-          el.play().catch(() => {});
-        } catch {}
+        audioContextRef.current?.resume().catch(() => {});
         fadeTo(INTERIOR_VOLUME, detail.seconds ?? 1.8);
         return;
       }
@@ -249,10 +324,11 @@ export default function HotelAtmosphere() {
       }
 
       if (detail.action === "fadeIn") {
-        if (!startedRef.current) ensureStarted();
-        try {
-          el.play().catch(() => {});
-        } catch {}
+        if (!startedRef.current) {
+          void ensureStarted();
+        } else {
+          audioContextRef.current?.resume().catch(() => {});
+        }
         fadeTo(INTERIOR_VOLUME, detail.seconds ?? 2);
       }
 
@@ -261,18 +337,24 @@ export default function HotelAtmosphere() {
         const seconds = detail.seconds ?? 2;
         fadeTo(0, 0.3);
         window.setTimeout(() => {
-          if (!startedRef.current) ensureStarted();
-          try {
-            el.play().catch(() => {});
-          } catch {}
+          if (!startedRef.current) {
+            void ensureStarted();
+          } else {
+            audioContextRef.current?.resume().catch(() => {});
+          }
           fadeTo(INTERIOR_VOLUME, seconds);
         }, Math.max(0, silence * 1000));
       }
 
       if (detail.action === "stop") {
         cancelRaf();
-        el.pause();
-        el.currentTime = 0;
+        sourceRef.current?.stop();
+        sourceRef.current?.disconnect();
+        sourceRef.current = null;
+        currentVolumeRef.current = 0;
+        if (gainRef.current) {
+          gainRef.current.gain.value = 0;
+        }
         startedRef.current = false;
       }
     };
@@ -283,12 +365,25 @@ export default function HotelAtmosphere() {
   }, [cancelRaf, enabled, ensureStarted, fadeTo]);
 
   useEffect(() => {
-    return cancelRaf;
-  }, [cancelRaf]);
+    void loadAudioData().catch(() => {});
+
+    return () => {
+      cancelRaf();
+      sourceRef.current?.stop();
+      sourceRef.current?.disconnect();
+      sourceRef.current = null;
+      gainRef.current?.disconnect();
+      gainRef.current = null;
+      startedRef.current = false;
+
+      const context = audioContextRef.current;
+      audioContextRef.current = null;
+      void context?.close();
+    };
+  }, [cancelRaf, loadAudioData]);
 
   return (
     <>
-      <audio ref={audioRef} src="/audio/breath.mp3" preload="auto" />
       <button
         type="button"
         className="atmosphere-toggle"
