@@ -147,6 +147,18 @@
   }
 }
 
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .stage {
+    width: min(
+      100%,
+      calc(
+        (100svh - 5.25rem - env(safe-area-inset-bottom)) *
+          var(--scene-ratio)
+      )
+    );
+  }
+}
+
 @media (pointer: coarse) {
   .marker {
     width: 1.35rem;
