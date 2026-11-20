@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
-import type { CSSProperties } from "react";
+import type { CSSProperties, MouseEventHandler } from "react";
 import styles from "./ArchitecturalScene.module.css";
 
 type SceneHotspotBase = {
@@ -23,7 +23,10 @@ type SceneHotspotBase = {
 export type SceneHotspot = SceneHotspotBase &
   (
     | { href: Route; onActivate?: never }
-    | { href?: never; onActivate: () => void }
+    | {
+        href?: never;
+        onActivate: MouseEventHandler<HTMLButtonElement>;
+      }
   );
 
 type ArchitecturalSceneProps = {
