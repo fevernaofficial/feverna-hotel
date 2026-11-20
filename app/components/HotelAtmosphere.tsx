@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type MouseEvent as ReactMouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { usePathname } from "next/navigation";
 import {
   HOTEL_ATMOSPHERE_EVENT,
@@ -22,6 +29,13 @@ function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
 }
 
+function isTrustedUserActivation(event: Event) {
+  return (
+    event.isTrusted &&
+    (navigator.userActivation === undefined || navigator.userActivation.isActive)
+  );
+}
+
 export default function HotelAtmosphere() {
   const pathname = usePathname();
 
@@ -34,6 +48,7 @@ export default function HotelAtmosphere() {
   const currentVolumeRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const startedRef = useRef(false);
+  const userActivatedRef = useRef(false);
   const environmentRef = useRef<AtmosphereEnvironment>("interior");
   const enabledRef = useRef(true);
 
@@ -108,6 +123,39 @@ export default function HotelAtmosphere() {
     return audioDataPromiseRef.current;
   }, []);
 
+  const getAudioContext = useCallback(() => {
+    let context = audioContextRef.current;
+    if (context && context.state !== "closed") return context;
+
+    context = new AudioContext();
+    audioContextRef.current = context;
+
+    const gain = context.createGain();
+    gain.gain.value = 0;
+    gain.connect(context.destination);
+    gainRef.current = gain;
+    currentVolumeRef.current = 0;
+
+    return context;
+  }, []);
+
+  const unlockAudioContext = useCallback((context: AudioContext) => {
+    // Mobile WebKit can require an AudioNode to start during the trusted
+    // gesture itself. A one-frame silent source unlocks the context while the
+    // real recording finishes loading and decoding asynchronously.
+    const source = context.createBufferSource();
+    source.buffer = context.createBuffer(1, 1, context.sampleRate);
+    source.connect(context.destination);
+    source.onended = () => source.disconnect();
+    source.start(0);
+
+    if (context.state !== "running") {
+      return context.resume();
+    }
+
+    return Promise.resolve();
+  }, []);
+
   const fadeTo = useCallback((target: number, seconds: number) => {
     const gain = gainRef.current;
     if (!gain) return;
@@ -137,11 +185,15 @@ export default function HotelAtmosphere() {
   }, [cancelRaf]);
 
   const ensureStarted = useCallback(async (force = false) => {
+    // Room/environment effects can run while the page is mounting. They may
+    // preload data, but must never create an AudioContext before a real user
+    // interaction has satisfied the browser's autoplay policy.
+    if (!userActivatedRef.current) return;
     if (!enabledRef.current && !force) return;
 
     if (startedRef.current) {
       const context = audioContextRef.current;
-      if (context?.state === "suspended") {
+      if (context && context.state !== "running" && context.state !== "closed") {
         await context.resume().catch(() => {});
       }
       return;
@@ -153,19 +205,11 @@ export default function HotelAtmosphere() {
     }
 
     const startPlayback = async () => {
-      let context = audioContextRef.current;
-      if (!context || context.state === "closed") {
-        context = new AudioContext();
-        audioContextRef.current = context;
+      const context = getAudioContext();
 
-        const gain = context.createGain();
-        gain.gain.value = 0;
-        gain.connect(context.destination);
-        gainRef.current = gain;
-        currentVolumeRef.current = 0;
-      }
-
-      await context.resume();
+      // Keep context creation, resume(), and node start on the synchronous
+      // side of the trusted interaction. Fetching and decoding happen later.
+      await unlockAudioContext(context);
 
       let buffer = audioBufferRef.current;
       if (!buffer) {
@@ -212,9 +256,9 @@ export default function HotelAtmosphere() {
         startPromiseRef.current = null;
       }
     }
-  }, [fadeTo, loadAudioData]);
+  }, [fadeTo, getAudioContext, loadAudioData, unlockAudioContext]);
 
-  function toggleSound() {
+  function toggleSound(event: ReactMouseEvent<HTMLButtonElement>) {
     if (enabled) {
       enabledRef.current = false;
       cancelRaf();
@@ -227,6 +271,7 @@ export default function HotelAtmosphere() {
     }
 
     enabledRef.current = true;
+    userActivatedRef.current = isTrustedUserActivation(event.nativeEvent);
     setEnabled(true);
     if (environmentRef.current === "interior") {
       if (startedRef.current) {
@@ -247,25 +292,70 @@ export default function HotelAtmosphere() {
     }
   }
 
-  // Start only after the first user gesture (hybrid)
+  // Start only after the first user gesture. Capture-phase listeners ensure
+  // the sound and hint controls can also unlock mobile audio even though they
+  // intentionally stop bubbling to the architectural scene.
   useEffect(() => {
     if (!enabled) return;
 
-    const onFirstGesture = () => {
-      if (!isCurrentInterior() || environmentRef.current === "exterior") return;
-      ensureStarted();
-      window.removeEventListener("pointerdown", onFirstGesture);
-      window.removeEventListener("keydown", onFirstGesture);
+    const removeGestureListeners = () => {
+      window.removeEventListener("click", onFirstGesture, true);
+      window.removeEventListener("keydown", onFirstGesture, true);
     };
 
-    window.addEventListener("pointerdown", onFirstGesture);
-    window.addEventListener("keydown", onFirstGesture);
+    const onFirstGesture = (event: Event) => {
+      if (!isTrustedUserActivation(event)) return;
+      if (!isCurrentInterior() || environmentRef.current === "exterior") return;
+      userActivatedRef.current = true;
+      void ensureStarted().then(() => {
+        if (startedRef.current) removeGestureListeners();
+      });
+    };
+
+    window.addEventListener("click", onFirstGesture, true);
+    window.addEventListener("keydown", onFirstGesture, true);
+
+    return removeGestureListeners;
+  }, [enabled, ensureStarted, isCurrentInterior]);
+
+  // iOS Safari exposes an "interrupted" context state after tab, app, or
+  // screen changes. Resume the existing graph when the page becomes visible;
+  // never create a second source or override the visitor's mute preference.
+  useEffect(() => {
+    const resumeVisibleInterior = () => {
+      if (
+        document.visibilityState !== "visible" ||
+        !enabledRef.current ||
+        !startedRef.current ||
+        environmentRef.current !== "interior"
+      ) {
+        return;
+      }
+
+      const context = audioContextRef.current;
+      if (!context || context.state === "running" || context.state === "closed") {
+        return;
+      }
+
+      void context.resume().then(() => {
+        if (
+          enabledRef.current &&
+          startedRef.current &&
+          environmentRef.current === "interior"
+        ) {
+          fadeTo(INTERIOR_VOLUME, 0.8);
+        }
+      }).catch(() => {});
+    };
+
+    document.addEventListener("visibilitychange", resumeVisibleInterior);
+    window.addEventListener("pageshow", resumeVisibleInterior);
 
     return () => {
-      window.removeEventListener("pointerdown", onFirstGesture);
-      window.removeEventListener("keydown", onFirstGesture);
+      document.removeEventListener("visibilitychange", resumeVisibleInterior);
+      window.removeEventListener("pageshow", resumeVisibleInterior);
     };
-  }, [enabled, ensureStarted, isCurrentInterior]);
+  }, [fadeTo]);
 
   // Fade out when leaving breath zones; fade in when returning
   useEffect(() => {
