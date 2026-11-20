@@ -8,7 +8,7 @@ type SiteRelease = {
 // null until the release date is confirmed; when set, use YYYY-MM-DD.
 export const siteRelease: SiteRelease = {
   version: "1.0",
-  publicationDate: null,
+  publicationDate: "2026-11-19",
 };
 
 export function formatPublicationDate(publicationDate: string) {
