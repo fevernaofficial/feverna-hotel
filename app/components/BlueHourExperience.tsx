@@ -35,6 +35,7 @@ type PlaybackStatus =
   | "loading"
   | "playing"
   | "paused"
+  | "stopping"
   | "ended"
   | "error";
 type PlayMode = "selected" | "all" | null;
@@ -119,7 +120,11 @@ export default function BlueHourExperience() {
   );
 
   const startTrack = useCallback(
-    async (trackIndex: number, mode: Exclude<PlayMode, null>, operation?: number) => {
+    async (
+      trackIndex: number,
+      mode: Exclude<PlayMode, null>,
+      { operation, continuous = false }: { operation?: number; continuous?: boolean } = {}
+    ) => {
       const audio = audioRef.current;
       if (!audio) return;
 
@@ -132,11 +137,11 @@ export default function BlueHourExperience() {
       setStatusMessage(`Preparing ${TRACKS[trackIndex].title}.`);
 
       audio.pause();
-      audio.volume = 0;
+      audio.volume = continuous ? localVolumeRef.current : 0;
       audio.muted = !masterEnabledRef.current;
       audio.src = TRACKS[trackIndex].src;
       audio.load();
-      suppressHotelAtmosphere(0.9);
+      if (!continuous) suppressHotelAtmosphere(0.9);
 
       try {
         await audio.play();
@@ -145,12 +150,14 @@ export default function BlueHourExperience() {
         setPerformanceVisible(true);
         setStatus("playing");
         setStatusMessage(`Now playing ${TRACKS[trackIndex].title}.`);
-        if (shortLandscapeRef.current && playerExpandedRef.current) {
+        if (!continuous && shortLandscapeRef.current && playerExpandedRef.current) {
           playerExpandedRef.current = false;
           focusAfterPanelChangeRef.current = "compact-playback";
           setPlayerExpanded(false);
         }
-        await fadeMusic(localVolumeRef.current, 900, activeOperation);
+        if (!continuous) {
+          await fadeMusic(localVolumeRef.current, 900, activeOperation);
+        }
       } catch {
         if (operationRef.current !== activeOperation) return;
         playModeRef.current = null;
@@ -174,7 +181,7 @@ export default function BlueHourExperience() {
       const mode = playModeRef.current ?? "selected";
       const faded = await fadeMusic(0, 260, operation);
       if (!faded || operationRef.current !== operation) return;
-      await startTrack(trackIndex, mode, operation);
+      await startTrack(trackIndex, mode, { operation });
     },
     [fadeMusic, startTrack]
   );
@@ -224,12 +231,14 @@ export default function BlueHourExperience() {
   }
 
   function compactPlaybackAction() {
+    if (status === "loading" || status === "stopping") return;
+
     if (status === "playing" || status === "paused") {
       pauseOrResume();
       return;
     }
 
-    playSelected();
+    playAll();
   }
 
   function expandPlayer() {
@@ -250,6 +259,7 @@ export default function BlueHourExperience() {
 
     const operation = ++operationRef.current;
     playModeRef.current = null;
+    setStatus("stopping");
     setStatusMessage("Returning to the quiet interlude.");
 
     void fadeMusic(0, 650, operation).then((completed) => {
@@ -272,6 +282,7 @@ export default function BlueHourExperience() {
   function selectTrack(event: ChangeEvent<HTMLInputElement>) {
     const trackIndex = Number(event.target.value);
     setSelectedTrack(trackIndex);
+    if (status === "stopping") return;
 
     if (status === "playing" || status === "loading") {
       void switchTrack(trackIndex);
@@ -305,21 +316,19 @@ export default function BlueHourExperience() {
   const handleEnded = useCallback(() => {
     const finishedTrack = currentTrackRef.current;
     const completedMode = playModeRef.current;
+    // Stop clears the mode before its fade finishes. Ignore any late end event.
+    if (!completedMode || !audioRef.current?.ended) return;
 
-    if (completedMode === "all" && finishedTrack < TRACKS.length - 1) {
-      const nextTrack = finishedTrack + 1;
+    if (completedMode === "all") {
+      const nextTrack = (finishedTrack + 1) % TRACKS.length;
       setSelectedTrack(nextTrack);
-      void startTrack(nextTrack, "all");
+      void startTrack(nextTrack, "all", { continuous: true });
       return;
     }
 
     playModeRef.current = null;
     setStatus("ended");
-    setStatusMessage(
-      completedMode === "all"
-        ? "The Blue Hour program is complete."
-        : `${TRACKS[finishedTrack].title} has ended.`
-    );
+    setStatusMessage(`${TRACKS[finishedTrack].title} has ended.`);
   }, [startTrack]);
 
   const handleAudioError = useCallback(() => {
@@ -428,13 +437,16 @@ export default function BlueHourExperience() {
     ? "The Blue Hour during a smoky evening performance, with a singer at center stage, accompanying musicians, an attentive audience, and the bar in service."
     : "The Blue Hour during a quiet interlude, its empty tables facing an upright piano, bass, and compact drum kit beneath low amber lights.";
 
-  const compactTrackIndex = status === "idle" ? selectedTrack : currentTrack;
+  const compactTrackIndex = status === "idle" ? 0 : currentTrack;
+  const compactBusy = status === "loading" || status === "stopping";
   const compactActionLabel =
     status === "playing"
       ? `Pause ${TRACKS[compactTrackIndex].title}`
       : status === "paused"
         ? `Resume ${TRACKS[compactTrackIndex].title}`
-        : `Play ${TRACKS[compactTrackIndex].title}`;
+        : compactBusy
+          ? statusMessage
+          : "Play the Blue Hour playlist on repeat";
   const compactActionText =
     status === "loading"
       ? "Preparing"
@@ -523,7 +535,7 @@ export default function BlueHourExperience() {
                   Play Selected
                 </button>
                 <button type="button" onClick={playAll}>
-                  Play All
+                  Play All · Repeat
                 </button>
                 <button
                   type="button"
@@ -577,7 +589,7 @@ export default function BlueHourExperience() {
                   ref={compactPlaybackRef}
                   type="button"
                   onClick={compactPlaybackAction}
-                  disabled={status === "loading"}
+                  aria-disabled={compactBusy}
                   aria-label={compactActionLabel}
                 >
                   {compactActionText}
