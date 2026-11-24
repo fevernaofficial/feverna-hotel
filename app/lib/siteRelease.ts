@@ -10,7 +10,7 @@ type SiteRelease = {
 export const siteRelease: SiteRelease = {
   version: "1.2.1",
   name: "Skyline Lounge — Take a Seat",
-  publicationDate: null,
+  publicationDate: "2026-11-24",
 };
 
 export function formatPublicationDate(publicationDate: string) {
