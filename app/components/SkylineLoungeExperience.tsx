@@ -27,8 +27,12 @@ const SKYLINE_SCENES = {
   },
 } as const;
 
-export default function SkylineLoungeExperience() {
-  const [view, setView] = useState<SkylineView>("lounge");
+export default function SkylineLoungeExperience({
+  initialView = "lounge",
+}: {
+  initialView?: SkylineView;
+}) {
+  const [view, setView] = useState<SkylineView>(initialView);
   const loungeButtonRef = useRef<HTMLButtonElement>(null);
   const arrivalButtonRef = useRef<HTMLButtonElement>(null);
   const focusTargetRef = useRef<FocusTarget | null>(null);
@@ -88,7 +92,19 @@ export default function SkylineLoungeExperience() {
           imageAlt={scene.alt}
           imageWidth={scene.width}
           imageHeight={scene.height}
-          hotspots={[]}
+          hotspots={
+            view === "arrival"
+              ? [
+                  {
+                    id: "blue-hour",
+                    label: "The Blue Hour",
+                    description: "Enter the adjoining performance room.",
+                    href: ROUTES.blueHour,
+                    bounds: { left: 78, top: 18, width: 15, height: 52 },
+                  },
+                ]
+              : []
+          }
           priority={view === "lounge"}
         />
       </div>
@@ -115,6 +131,12 @@ export default function SkylineLoungeExperience() {
           </button>
         )}
         <span aria-hidden="true" />
+        {view === "arrival" ? (
+          <>
+            <Link href={ROUTES.blueHour}>Enter The Blue Hour</Link>
+            <span aria-hidden="true" />
+          </>
+        ) : null}
         <Link href={ROUTES.lobby}>Return to Lobby</Link>
       </nav>
     </main>

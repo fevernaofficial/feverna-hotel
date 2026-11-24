@@ -27,6 +27,16 @@
   object-fit: contain;
 }
 
+.alternateImage {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;
+}
+
+.alternateImageVisible {
+  opacity: 1;
+}
+
 .hotspots {
   position: absolute;
   inset: 0;
@@ -168,6 +178,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .canvas,
+  .alternateImage,
   .hotspot,
   .marker,
   .label {

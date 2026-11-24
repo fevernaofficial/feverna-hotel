@@ -7,6 +7,15 @@ export const metadata: Metadata = {
     "Visit the rainlit Skyline Lounge of Hotel Feverna and look out across the city.",
 };
 
-export default function SkylineLoungePage() {
-  return <SkylineLoungeExperience />;
+export default async function SkylineLoungePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>;
+}) {
+  const { view } = await searchParams;
+  return (
+    <SkylineLoungeExperience
+      initialView={view === "arrival" ? "arrival" : "lounge"}
+    />
+  );
 }

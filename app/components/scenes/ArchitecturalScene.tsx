@@ -36,6 +36,8 @@ type ArchitecturalSceneProps = {
   imageAlt: string;
   imageWidth: number;
   imageHeight: number;
+  alternateImageSrc?: string;
+  alternateImageVisible?: boolean;
   hotspots: SceneHotspot[];
   priority?: boolean;
 };
@@ -47,6 +49,8 @@ export default function ArchitecturalScene({
   imageAlt,
   imageWidth,
   imageHeight,
+  alternateImageSrc,
+  alternateImageVisible = false,
   hotspots,
   priority = false,
 }: ArchitecturalSceneProps) {
@@ -67,6 +71,19 @@ export default function ArchitecturalScene({
             priority={priority}
             sizes="100vw"
           />
+
+          {alternateImageSrc ? (
+            <Image
+              className={`${styles.image} ${styles.alternateImage} ${
+                alternateImageVisible ? styles.alternateImageVisible : ""
+              }`}
+              src={alternateImageSrc}
+              alt=""
+              fill
+              sizes="100vw"
+              aria-hidden="true"
+            />
+          ) : null}
 
           <div className={styles.hotspots}>
             {hotspots.map((hotspot) => {

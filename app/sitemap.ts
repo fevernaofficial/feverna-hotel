@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     "/library",
     "/skyline-lounge",
+    "/blue-hour",
     "/about",
     "/contact",
   ] as const;

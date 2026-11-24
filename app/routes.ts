@@ -9,6 +9,7 @@ export const ROUTES = {
   lobby: "/",
   library: "/library" as Route,
   skylineLounge: "/skyline-lounge" as Route,
+  blueHour: "/blue-hour" as Route,
   desk: "/desk",
   hallway0: "/hallway0",
   hallway1: "/hallway1",

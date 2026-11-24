@@ -11,8 +11,10 @@ import {
 import { usePathname } from "next/navigation";
 import {
   HOTEL_ATMOSPHERE_EVENT,
+  HOTEL_SOUND_STATE_EVENT,
   type AtmosphereEnvironment,
   type AtmosphereEvent,
+  type HotelSoundStateEvent,
 } from "../lib/atmosphere";
 
 const INTERIOR_VOLUME = 0.18;
@@ -50,6 +52,8 @@ export default function HotelAtmosphere() {
   const startedRef = useRef(false);
   const userActivatedRef = useRef(false);
   const environmentRef = useRef<AtmosphereEnvironment>("interior");
+  const ambienceSuppressedRef = useRef(false);
+  const previousPathnameRef = useRef(pathname);
   const enabledRef = useRef(true);
 
   const [enabled, setEnabled] = useState(true);
@@ -70,6 +74,7 @@ export default function HotelAtmosphere() {
       pathname.startsWith("/guest") ||
       pathname.startsWith("/library") ||
       pathname.startsWith("/skyline-lounge") ||
+      pathname.startsWith("/blue-hour") ||
       pathname.startsWith("/hallway") ||
       pathname.startsWith("/elevator") ||
       pathname.startsWith("/the-ache") ||
@@ -239,7 +244,8 @@ export default function HotelAtmosphere() {
 
       if (
         enabledRef.current &&
-        environmentRef.current === "interior"
+        environmentRef.current === "interior" &&
+        !ambienceSuppressedRef.current
       ) {
         fadeTo(INTERIOR_VOLUME, 2.0);
       }
@@ -274,7 +280,10 @@ export default function HotelAtmosphere() {
     enabledRef.current = true;
     userActivatedRef.current = isTrustedUserActivation(event.nativeEvent);
     setEnabled(true);
-    if (environmentRef.current === "interior") {
+    if (
+      environmentRef.current === "interior" &&
+      !ambienceSuppressedRef.current
+    ) {
       if (startedRef.current) {
         audioContextRef.current?.resume().catch(() => {});
         fadeTo(INTERIOR_VOLUME, 1.2);
@@ -328,7 +337,8 @@ export default function HotelAtmosphere() {
         document.visibilityState !== "visible" ||
         !enabledRef.current ||
         !startedRef.current ||
-        environmentRef.current !== "interior"
+        environmentRef.current !== "interior" ||
+        ambienceSuppressedRef.current
       ) {
         return;
       }
@@ -342,7 +352,8 @@ export default function HotelAtmosphere() {
         if (
           enabledRef.current &&
           startedRef.current &&
-          environmentRef.current === "interior"
+          environmentRef.current === "interior" &&
+          !ambienceSuppressedRef.current
         ) {
           fadeTo(INTERIOR_VOLUME, 0.8);
         }
@@ -360,6 +371,11 @@ export default function HotelAtmosphere() {
 
   // Fade out when leaving breath zones; fade in when returning
   useEffect(() => {
+    if (previousPathnameRef.current !== pathname) {
+      ambienceSuppressedRef.current = false;
+      previousPathnameRef.current = pathname;
+    }
+
     const isInteriorEnvironment = isCurrentInterior();
     environmentRef.current = isInteriorEnvironment ? "interior" : "exterior";
 
@@ -372,7 +388,7 @@ export default function HotelAtmosphere() {
       return;
     }
 
-    if (!isInteriorEnvironment) {
+    if (!isInteriorEnvironment || ambienceSuppressedRef.current) {
       fadeTo(0, 5.0);
       return;
     }
@@ -399,12 +415,40 @@ export default function HotelAtmosphere() {
           return;
         }
 
+
+        if (ambienceSuppressedRef.current) {
+          fadeTo(0, detail.seconds ?? 1.8);
+          return;
+        }
+
         if (!startedRef.current) {
           void ensureStarted();
           return;
         }
         audioContextRef.current?.resume().catch(() => {});
         fadeTo(INTERIOR_VOLUME, detail.seconds ?? 1.8);
+        return;
+      }
+
+      if (detail.action === "suppress") {
+        ambienceSuppressedRef.current = true;
+        fadeTo(0, detail.seconds ?? 1.2);
+        return;
+      }
+
+      if (detail.action === "release") {
+        ambienceSuppressedRef.current = false;
+        if (
+          enabledRef.current &&
+          environmentRef.current === "interior"
+        ) {
+          if (!startedRef.current) {
+            void ensureStarted();
+          } else {
+            audioContextRef.current?.resume().catch(() => {});
+          }
+          fadeTo(INTERIOR_VOLUME, detail.seconds ?? 1.8);
+        }
         return;
       }
 
@@ -454,6 +498,17 @@ export default function HotelAtmosphere() {
     return () =>
       window.removeEventListener(HOTEL_ATMOSPHERE_EVENT, handler as EventListener);
   }, [cancelRaf, enabled, ensureStarted, fadeTo]);
+
+  // Publish the global sound preference so room-specific players can obey
+  // the same accessible Sound on/off control without owning another toggle.
+  useEffect(() => {
+    document.documentElement.dataset.fevernaSound = enabled ? "on" : "off";
+    window.dispatchEvent(
+      new CustomEvent<HotelSoundStateEvent>(HOTEL_SOUND_STATE_EVENT, {
+        detail: { enabled },
+      })
+    );
+  }, [enabled]);
 
   useEffect(() => {
     void loadAudioData().catch(() => {});
