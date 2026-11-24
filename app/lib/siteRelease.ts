@@ -1,5 +1,6 @@
 type SiteRelease = {
   version: string;
+  name: string;
   publicationDate: string | null;
 };
 
@@ -7,8 +8,9 @@ type SiteRelease = {
 // not track individual commits or automatic deployments. Keep publicationDate
 // null until the release date is confirmed; when set, use YYYY-MM-DD.
 export const siteRelease: SiteRelease = {
-  version: "1.1",
-  publicationDate: "2026-11-20",
+  version: "1.2",
+  name: "The Skyline Lounge & The Blue Hour",
+  publicationDate: "2026-11-24",
 };
 
 export function formatPublicationDate(publicationDate: string) {

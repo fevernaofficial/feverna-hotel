@@ -149,10 +149,10 @@ export default function AboutPage() {
           className="mt-7 border-t border-white/5 pt-5 text-center font-serif text-[0.65rem] tracking-[0.16em] text-fevernaGold/60"
           aria-label="Website release information"
         >
-          <p>Hotel Feverna · v{siteRelease.version}</p>
+          <p>Hotel Feverna — v{siteRelease.version}</p>
           {siteRelease.publicationDate ? (
             <p className="mt-1 text-white/35">
-              Published {formatPublicationDate(siteRelease.publicationDate)}
+              Released {formatPublicationDate(siteRelease.publicationDate)}
             </p>
           ) : null}
         </footer>
