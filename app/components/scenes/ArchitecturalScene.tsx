@@ -10,6 +10,7 @@ type SceneHotspotBase = {
   id: string;
   label: string;
   description?: string;
+  narrowLabelAlign?: "end";
   bounds: {
     left: number;
     top: number;
@@ -99,7 +100,14 @@ export default function ArchitecturalScene({
               const content = (
                 <>
                   <span className={styles.marker} aria-hidden="true" />
-                  <span className={styles.label} aria-hidden="true">
+                  <span
+                    className={
+                      hotspot.narrowLabelAlign === "end"
+                        ? `${styles.label} ${styles.labelAlignEnd}`
+                        : styles.label
+                    }
+                    aria-hidden="true"
+                  >
                     <strong>{hotspot.label}</strong>
                     {hotspot.description ? (
                       <small>{hotspot.description}</small>

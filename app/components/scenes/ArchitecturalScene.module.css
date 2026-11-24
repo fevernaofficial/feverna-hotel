@@ -108,7 +108,7 @@
   background: rgba(8, 6, 5, 0.88);
   box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.45);
   text-align: center;
-  transform: translate(-50%, 0.35rem);
+  transform: translate(var(--hotspot-label-offset, -50%), 0.35rem);
   transition:
     opacity 180ms ease,
     transform 180ms ease;
@@ -131,7 +131,7 @@
 .hotspot:hover .label,
 .hotspot:focus-visible .label {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translate(var(--hotspot-label-offset, -50%), 0);
 }
 
 @keyframes scene-arrival {
@@ -145,6 +145,12 @@
 }
 
 @media (max-width: 640px) {
+  .labelAlignEnd {
+    --hotspot-label-offset: 0%;
+    right: 0;
+    left: auto;
+  }
+
   .stage {
     width: 100%;
   }

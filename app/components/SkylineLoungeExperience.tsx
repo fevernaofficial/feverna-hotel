@@ -60,6 +60,13 @@ const TAKE_A_SEAT = {
   focus: "return-lounge",
 } as const satisfies ViewAction;
 
+const LOOK_OUT_AT_THE_CITY = {
+  id: "city",
+  label: "Look Out at the City",
+  destination: "city",
+  focus: "return-seat",
+} as const satisfies ViewAction;
+
 const RETURN_TO_LOUNGE = {
   id: "return-lounge",
   label: "Return to Lounge",
@@ -85,15 +92,7 @@ const VIEW_ACTIONS: Record<SkylineView, ViewAction[]> = {
       focus: "entrance",
     },
   ],
-  booth: [
-    {
-      id: "city",
-      label: "Look Out at the City",
-      destination: "city",
-      focus: "return-seat",
-    },
-    RETURN_TO_LOUNGE,
-  ],
+  booth: [LOOK_OUT_AT_THE_CITY, RETURN_TO_LOUNGE],
   city: [
     {
       id: "return-seat",
@@ -160,6 +159,16 @@ export default function SkylineLoungeExperience({
         label: TAKE_A_SEAT.label,
         bounds: { left: 72, top: 63, width: 15, height: 15 },
         onActivate: () => changeView(TAKE_A_SEAT),
+      },
+    ];
+  } else if (view === "booth") {
+    hotspots = [
+      {
+        id: "city-facing-window",
+        label: LOOK_OUT_AT_THE_CITY.label,
+        narrowLabelAlign: "end",
+        bounds: { left: 76, top: 24, width: 11.5, height: 26 },
+        onActivate: () => changeView(LOOK_OUT_AT_THE_CITY),
       },
     ];
   }
