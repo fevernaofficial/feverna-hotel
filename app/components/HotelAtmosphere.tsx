@@ -69,6 +69,7 @@ export default function HotelAtmosphere() {
       pathname === "/" ||
       pathname.startsWith("/guest") ||
       pathname.startsWith("/library") ||
+      pathname.startsWith("/skyline-lounge") ||
       pathname.startsWith("/hallway") ||
       pathname.startsWith("/elevator") ||
       pathname.startsWith("/the-ache") ||

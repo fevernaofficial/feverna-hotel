@@ -295,6 +295,26 @@
     letter-spacing: 0.1em;
     white-space: nowrap;
   }
+
+  .skylineDirectory button,
+  .skylineDirectory a {
+    flex-basis: 100%;
+  }
+
+  .lobbyDirectory {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .lobbyDirectory button,
+  .lobbyDirectory a {
+    width: 100%;
+    padding-right: 0.35rem;
+    padding-left: 0.35rem;
+    line-height: 1.35;
+    white-space: normal;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {

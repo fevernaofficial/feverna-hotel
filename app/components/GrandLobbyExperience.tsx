@@ -169,7 +169,12 @@ export default function GrandLobbyExperience() {
         ) : null}
       </div>
 
-      <nav className={styles.directory} aria-label="Grand Lobby navigation">
+      <nav
+        className={`${styles.directory} ${
+          view === "lobby" ? styles.lobbyDirectory : ""
+        }`}
+        aria-label="Grand Lobby navigation"
+      >
         {view === "lobby" ? (
           <>
             <button
@@ -182,6 +187,8 @@ export default function GrandLobbyExperience() {
             </button>
             <span aria-hidden="true" />
             <Link href={ROUTES.library}>Enter Library</Link>
+            <span aria-hidden="true" />
+            <Link href={ROUTES.skylineLounge}>Skyline Lounge</Link>
             <span aria-hidden="true" />
             <button type="button" onClick={() => showView("exterior")}>
               Step Outside
