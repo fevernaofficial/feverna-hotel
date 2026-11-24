@@ -54,8 +54,17 @@ export default function BlueHourExperience() {
   const currentTrackRef = useRef(0);
   const localVolumeRef = useRef(0.72);
   const masterEnabledRef = useRef(true);
+  const shortLandscapeRef = useRef(false);
+  const playerExpandedRef = useRef(true);
+  const compactPlaybackRef = useRef<HTMLButtonElement>(null);
+  const expandButtonRef = useRef<HTMLButtonElement>(null);
+  const minimizeButtonRef = useRef<HTMLButtonElement>(null);
+  const focusAfterPanelChangeRef = useRef<
+    "compact-playback" | "expand" | "minimize" | null
+  >(null);
 
   const [selectedTrack, setSelectedTrack] = useState(0);
+  const [currentTrack, setCurrentTrack] = useState(0);
   const [status, setStatus] = useState<PlaybackStatus>("idle");
   const [statusMessage, setStatusMessage] = useState(
     "Quiet interlude. Choose a recording when you are ready."
@@ -63,6 +72,7 @@ export default function BlueHourExperience() {
   const [performanceVisible, setPerformanceVisible] = useState(false);
   const [localVolume, setLocalVolume] = useState(0.72);
   const [masterEnabled, setMasterEnabled] = useState(true);
+  const [playerExpanded, setPlayerExpanded] = useState(true);
 
   const cancelFade = useCallback(() => {
     if (fadeFrameRef.current !== null) {
@@ -117,6 +127,7 @@ export default function BlueHourExperience() {
       cancelFade();
       playModeRef.current = mode;
       currentTrackRef.current = trackIndex;
+      setCurrentTrack(trackIndex);
       setStatus("loading");
       setStatusMessage(`Preparing ${TRACKS[trackIndex].title}.`);
 
@@ -134,6 +145,11 @@ export default function BlueHourExperience() {
         setPerformanceVisible(true);
         setStatus("playing");
         setStatusMessage(`Now playing ${TRACKS[trackIndex].title}.`);
+        if (shortLandscapeRef.current && playerExpandedRef.current) {
+          playerExpandedRef.current = false;
+          focusAfterPanelChangeRef.current = "compact-playback";
+          setPlayerExpanded(false);
+        }
         await fadeMusic(localVolumeRef.current, 900, activeOperation);
       } catch {
         if (operationRef.current !== activeOperation) return;
@@ -207,6 +223,27 @@ export default function BlueHourExperience() {
       });
   }
 
+  function compactPlaybackAction() {
+    if (status === "playing" || status === "paused") {
+      pauseOrResume();
+      return;
+    }
+
+    playSelected();
+  }
+
+  function expandPlayer() {
+    playerExpandedRef.current = true;
+    focusAfterPanelChangeRef.current = "minimize";
+    setPlayerExpanded(true);
+  }
+
+  function minimizePlayer() {
+    playerExpandedRef.current = false;
+    focusAfterPanelChangeRef.current = "expand";
+    setPlayerExpanded(false);
+  }
+
   function stopPlayback() {
     const audio = audioRef.current;
     if (!audio) return;
@@ -226,6 +263,9 @@ export default function BlueHourExperience() {
         "Quiet interlude. Choose a recording when you are ready."
       );
       releaseHotelAtmosphere(1.8);
+      window.requestAnimationFrame(() => {
+        minimizeButtonRef.current?.focus();
+      });
     });
   }
 
@@ -247,6 +287,7 @@ export default function BlueHourExperience() {
       audio.load();
       audio.volume = localVolumeRef.current;
       currentTrackRef.current = trackIndex;
+      setCurrentTrack(trackIndex);
       setStatus("paused");
       setStatusMessage(`${TRACKS[trackIndex].title} selected and ready.`);
     } else {
@@ -293,6 +334,51 @@ export default function BlueHourExperience() {
     setPerformanceVisible(false);
     releaseHotelAtmosphere(1.2);
   }, [cancelFade]);
+
+  useEffect(() => {
+    const media = window.matchMedia(
+      "(orientation: landscape) and (max-height: 500px) and (pointer: coarse)"
+    );
+    shortLandscapeRef.current = media.matches;
+
+    const initialFrame = window.requestAnimationFrame(() => {
+      if (!media.matches || !playerExpandedRef.current) return;
+      playerExpandedRef.current = false;
+      setPlayerExpanded(false);
+    });
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      shortLandscapeRef.current = event.matches;
+      if (event.matches && playerExpandedRef.current) {
+        playerExpandedRef.current = false;
+        setPlayerExpanded(false);
+      }
+    };
+
+    media.addEventListener("change", handleChange);
+    return () => {
+      window.cancelAnimationFrame(initialFrame);
+      media.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const focusTarget = focusAfterPanelChangeRef.current;
+    if (!focusTarget) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      if (focusTarget === "compact-playback") {
+        compactPlaybackRef.current?.focus();
+      } else if (focusTarget === "expand") {
+        expandButtonRef.current?.focus();
+      } else {
+        minimizeButtonRef.current?.focus();
+      }
+      focusAfterPanelChangeRef.current = null;
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [playerExpanded]);
 
   useEffect(() => {
     const initialEnabled =
@@ -342,6 +428,22 @@ export default function BlueHourExperience() {
     ? "The Blue Hour during a smoky evening performance, with a singer at center stage, accompanying musicians, an attentive audience, and the bar in service."
     : "The Blue Hour during a quiet interlude, its empty tables facing an upright piano, bass, and compact drum kit beneath low amber lights.";
 
+  const compactTrackIndex = status === "idle" ? selectedTrack : currentTrack;
+  const compactActionLabel =
+    status === "playing"
+      ? `Pause ${TRACKS[compactTrackIndex].title}`
+      : status === "paused"
+        ? `Resume ${TRACKS[compactTrackIndex].title}`
+        : `Play ${TRACKS[compactTrackIndex].title}`;
+  const compactActionText =
+    status === "loading"
+      ? "Preparing"
+      : status === "playing"
+        ? "Pause"
+        : status === "paused"
+          ? "Resume"
+          : "Play";
+
   return (
     <main
       data-hotel-atmosphere="interior"
@@ -370,76 +472,136 @@ export default function BlueHourExperience() {
           priority
         />
 
-        <section className={styles.player} aria-labelledby="blue-hour-player-title">
-          <div className={styles.playerHeading}>
-            <div>
-              <p className={styles.eyebrow}>Evening recordings</p>
-              <h2 id="blue-hour-player-title">At The Blue Hour</h2>
-            </div>
-            <span className={styles.soundState}>
-              Master sound {masterEnabled ? "on" : "off"}
-            </span>
-          </div>
+        <section
+          className={`${styles.player} ${
+            playerExpanded ? "" : styles.playerCollapsed
+          }`}
+          aria-label="The Blue Hour music player"
+        >
+          {playerExpanded ? (
+            <>
+              <div className={styles.playerHeading}>
+                <div>
+                  <p className={styles.eyebrow}>Evening recordings</p>
+                  <h2>At The Blue Hour</h2>
+                </div>
+                <div className={styles.headingActions}>
+                  <span className={styles.soundState}>
+                    Master sound {masterEnabled ? "on" : "off"}
+                  </span>
+                  <button
+                    ref={minimizeButtonRef}
+                    type="button"
+                    className={styles.panelToggle}
+                    onClick={minimizePlayer}
+                    aria-label="Minimize The Blue Hour music player"
+                    aria-expanded="true"
+                  >
+                    Minimize
+                  </button>
+                </div>
+              </div>
 
-          <fieldset className={styles.trackList}>
-            <legend>Select a recording</legend>
-            {TRACKS.map((track, index) => (
-              <label key={track.src}>
+              <fieldset className={styles.trackList}>
+                <legend>Select a recording</legend>
+                {TRACKS.map((track, index) => (
+                  <label key={track.src}>
+                    <input
+                      type="radio"
+                      name="blue-hour-track"
+                      value={index}
+                      checked={selectedTrack === index}
+                      onChange={selectTrack}
+                    />
+                    <span>{track.title}</span>
+                  </label>
+                ))}
+              </fieldset>
+
+              <div className={styles.actions} aria-label="Playback controls">
+                <button type="button" onClick={playSelected}>
+                  Play Selected
+                </button>
+                <button type="button" onClick={playAll}>
+                  Play All
+                </button>
+                <button
+                  type="button"
+                  onClick={pauseOrResume}
+                  disabled={status !== "playing" && status !== "paused"}
+                >
+                  {status === "paused" ? "Resume" : "Pause"}
+                </button>
+                <button
+                  type="button"
+                  onClick={stopPlayback}
+                  disabled={status === "idle" && !performanceVisible}
+                >
+                  Stop
+                </button>
+              </div>
+
+              <div className={styles.volumeRow}>
+                <label htmlFor="blue-hour-volume">Music volume</label>
                 <input
-                  type="radio"
-                  name="blue-hour-track"
-                  value={index}
-                  checked={selectedTrack === index}
-                  onChange={selectTrack}
+                  id="blue-hour-volume"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={localVolume}
+                  onChange={changeVolume}
                 />
-                <span>{track.title}</span>
-              </label>
-            ))}
-          </fieldset>
+              </div>
 
-          <div className={styles.actions} aria-label="Playback controls">
-            <button type="button" onClick={playSelected}>
-              Play Selected
-            </button>
-            <button type="button" onClick={playAll}>
-              Play All
-            </button>
-            <button
-              type="button"
-              onClick={pauseOrResume}
-              disabled={status !== "playing" && status !== "paused"}
-            >
-              {status === "paused" ? "Resume" : "Pause"}
-            </button>
-            <button
-              type="button"
-              onClick={stopPlayback}
-              disabled={status === "idle" && !performanceVisible}
-            >
-              Stop
-            </button>
-          </div>
-
-          <div className={styles.volumeRow}>
-            <label htmlFor="blue-hour-volume">Music volume</label>
-            <input
-              id="blue-hour-volume"
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={localVolume}
-              onChange={changeVolume}
-            />
-          </div>
-
-          <p
-            className={status === "error" ? styles.error : styles.status}
-            role={status === "error" ? "alert" : undefined}
-            aria-live={status === "error" ? "assertive" : "polite"}
-          >
-            {statusMessage}
-          </p>
+              <p
+                className={status === "error" ? styles.error : styles.status}
+                role={status === "error" ? "alert" : undefined}
+                aria-live={status === "error" ? "assertive" : "polite"}
+              >
+                {statusMessage}
+              </p>
+            </>
+          ) : (
+            <div className={styles.compactPlayer}>
+              <div className={styles.compactTrack}>
+                <p className={styles.eyebrow}>
+                  {status === "idle"
+                    ? "An evening program awaits"
+                    : "The Blue Hour"}
+                </p>
+                <h2>{TRACKS[compactTrackIndex].title}</h2>
+              </div>
+              <div className={styles.compactControls}>
+                <button
+                  ref={compactPlaybackRef}
+                  type="button"
+                  onClick={compactPlaybackAction}
+                  disabled={status === "loading"}
+                  aria-label={compactActionLabel}
+                >
+                  {compactActionText}
+                </button>
+                <button
+                  ref={expandButtonRef}
+                  type="button"
+                  className={styles.panelToggle}
+                  onClick={expandPlayer}
+                  aria-label="Expand The Blue Hour music player"
+                  aria-expanded="false"
+                >
+                  Expand player
+                </button>
+              </div>
+              <p
+                className={styles.visuallyHidden}
+                role={status === "error" ? "alert" : undefined}
+                aria-live={status === "error" ? "assertive" : "polite"}
+              >
+                {statusMessage}
+              </p>
+            </div>
+          )}
 
           <audio
             ref={audioRef}
