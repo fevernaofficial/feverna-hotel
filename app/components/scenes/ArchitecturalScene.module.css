@@ -5,7 +5,10 @@
 }
 
 .stage {
-  width: min(100%, calc((100svh - 9rem) * var(--scene-ratio)));
+  width: min(
+    100%,
+    calc((100svh - var(--scene-viewport-clearance, 9rem)) * var(--scene-ratio))
+  );
   max-width: 1672px;
   aspect-ratio: var(--scene-aspect);
 }

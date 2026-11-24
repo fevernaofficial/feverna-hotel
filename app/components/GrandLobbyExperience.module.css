@@ -73,6 +73,13 @@
   place-items: center;
 }
 
+@media (min-width: 701px) {
+  .skylineSceneArea {
+    /* Reserve space for the Skyline heading, directory, and fixed footer. */
+    --scene-viewport-clearance: calc(8rem + var(--footer-h) + env(safe-area-inset-bottom));
+  }
+}
+
 .receptionPanel {
   position: absolute;
   right: max(1rem, calc((100% - 72rem) / 2));

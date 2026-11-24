@@ -2,13 +2,25 @@
 
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { ROUTES } from "../routes";
-import ArchitecturalScene from "./scenes/ArchitecturalScene";
+import ArchitecturalScene, { type SceneHotspot } from "./scenes/ArchitecturalScene";
 import styles from "./GrandLobbyExperience.module.css";
 
-type SkylineView = "lounge" | "arrival";
-type FocusTarget = "lounge" | "arrival";
+type SkylineView = "lounge" | "arrival" | "booth" | "city";
+type ActionId =
+  | "entrance"
+  | "bar"
+  | "seat"
+  | "city"
+  | "return-seat"
+  | "return-lounge";
+type ViewAction = {
+  id: ActionId;
+  label: string;
+  destination: SkylineView;
+  focus: ActionId;
+};
 
 const SKYLINE_SCENES = {
   lounge: {
@@ -25,19 +37,86 @@ const SKYLINE_SCENES = {
     width: 1672,
     height: 941,
   },
+  booth: {
+    label: "Window-side booth",
+    src: "/images/skyline-lounge/skyline-window-booth-night.webp",
+    alt: "A curved burgundy booth and a lamp-lit table beside a tall, rain-streaked Skyline Lounge window.",
+    width: 1671,
+    height: 941,
+  },
+  city: {
+    label: "City windows",
+    src: "/images/skyline-lounge/skyline-city-windows-night.webp",
+    alt: "Nighttime city lights seen through the Skyline Lounge's tall arched windows, with rain on the glass and a candlelit table in the foreground.",
+    width: 1671,
+    height: 941,
+  },
 } as const;
+
+const TAKE_A_SEAT = {
+  id: "seat",
+  label: "Take a Seat",
+  destination: "booth",
+  focus: "return-lounge",
+} as const satisfies ViewAction;
+
+const RETURN_TO_LOUNGE = {
+  id: "return-lounge",
+  label: "Return to Lounge",
+  destination: "lounge",
+  focus: "seat",
+} as const satisfies ViewAction;
+
+const VIEW_ACTIONS: Record<SkylineView, ViewAction[]> = {
+  lounge: [
+    TAKE_A_SEAT,
+    {
+      id: "entrance",
+      label: "Look toward the entrance",
+      destination: "arrival",
+      focus: "bar",
+    },
+  ],
+  arrival: [
+    {
+      id: "bar",
+      label: "Look toward the bar",
+      destination: "lounge",
+      focus: "entrance",
+    },
+  ],
+  booth: [
+    {
+      id: "city",
+      label: "Look Out at the City",
+      destination: "city",
+      focus: "return-seat",
+    },
+    RETURN_TO_LOUNGE,
+  ],
+  city: [
+    {
+      id: "return-seat",
+      label: "Return to Seat",
+      destination: "booth",
+      focus: "city",
+    },
+    RETURN_TO_LOUNGE,
+  ],
+};
 
 export default function SkylineLoungeExperience({
   initialView = "lounge",
 }: {
-  initialView?: SkylineView;
+  initialView?: "lounge" | "arrival";
 }) {
   const [view, setView] = useState<SkylineView>(initialView);
-  const loungeButtonRef = useRef<HTMLButtonElement>(null);
-  const arrivalButtonRef = useRef<HTMLButtonElement>(null);
-  const focusTargetRef = useRef<FocusTarget | null>(null);
+  const directoryRef = useRef<HTMLElement>(null);
+  const focusTargetRef = useRef<ActionId | null>(null);
 
   const scene = SKYLINE_SCENES[view];
+  const actions = VIEW_ACTIONS[view];
+  const hasReturnToLobby = view === "lounge" || view === "arrival";
 
   useEffect(() => {
     const arrivalImage = new window.Image();
@@ -49,25 +128,40 @@ export default function SkylineLoungeExperience({
     if (!focusTarget) return;
 
     const frame = window.requestAnimationFrame(() => {
-      const target =
-        focusTarget === "lounge"
-          ? loungeButtonRef.current
-          : arrivalButtonRef.current;
-      target?.focus();
+      directoryRef.current
+        ?.querySelector<HTMLButtonElement>(`[data-skyline-action="${focusTarget}"]`)
+        ?.focus({ preventScroll: true });
       focusTargetRef.current = null;
     });
 
     return () => window.cancelAnimationFrame(frame);
   }, [view]);
 
-  function lookTowardEntrance() {
-    focusTargetRef.current = "lounge";
-    setView("arrival");
+  function changeView(action: ViewAction) {
+    focusTargetRef.current = action.focus;
+    setView(action.destination);
   }
 
-  function lookTowardLounge() {
-    focusTargetRef.current = "arrival";
-    setView("lounge");
+  let hotspots: SceneHotspot[] = [];
+  if (view === "arrival") {
+    hotspots = [
+      {
+        id: "blue-hour",
+        label: "The Blue Hour",
+        description: "Enter the adjoining performance room.",
+        href: ROUTES.blueHour,
+        bounds: { left: 78, top: 18, width: 15, height: 52 },
+      },
+    ];
+  } else if (view === "lounge") {
+    hotspots = [
+      {
+        id: "window-side-booth",
+        label: TAKE_A_SEAT.label,
+        bounds: { left: 72, top: 63, width: 15, height: 15 },
+        onActivate: () => changeView(TAKE_A_SEAT),
+      },
+    ];
   }
 
   return (
@@ -84,7 +178,7 @@ export default function SkylineLoungeExperience({
         <h1>Skyline Lounge</h1>
       </header>
 
-      <div className={styles.sceneArea}>
+      <div className={`${styles.sceneArea} ${styles.skylineSceneArea}`}>
         <ArchitecturalScene
           sceneId={`skyline-${view}`}
           sceneLabel={scene.label}
@@ -92,52 +186,40 @@ export default function SkylineLoungeExperience({
           imageAlt={scene.alt}
           imageWidth={scene.width}
           imageHeight={scene.height}
-          hotspots={
-            view === "arrival"
-              ? [
-                  {
-                    id: "blue-hour",
-                    label: "The Blue Hour",
-                    description: "Enter the adjoining performance room.",
-                    href: ROUTES.blueHour,
-                    bounds: { left: 78, top: 18, width: 15, height: 52 },
-                  },
-                ]
-              : []
-          }
+          hotspots={hotspots}
           priority={view === "lounge"}
         />
       </div>
 
       <nav
+        ref={directoryRef}
         className={`${styles.directory} ${styles.skylineDirectory}`}
         aria-label="Skyline Lounge navigation"
       >
-        {view === "lounge" ? (
-          <button
-            ref={arrivalButtonRef}
-            type="button"
-            onClick={lookTowardEntrance}
-          >
-            Look toward the entrance
-          </button>
-        ) : (
-          <button
-            ref={loungeButtonRef}
-            type="button"
-            onClick={lookTowardLounge}
-          >
-            Look toward the bar
-          </button>
-        )}
-        <span aria-hidden="true" />
+        {actions.map((action, index) => (
+          <Fragment key={action.id}>
+            {index > 0 ? <span aria-hidden="true" /> : null}
+            <button
+              type="button"
+              data-skyline-action={action.id}
+              onClick={() => changeView(action)}
+            >
+              {action.label}
+            </button>
+          </Fragment>
+        ))}
         {view === "arrival" ? (
           <>
-            <Link href={ROUTES.blueHour}>Enter The Blue Hour</Link>
             <span aria-hidden="true" />
+            <Link href={ROUTES.blueHour}>Enter The Blue Hour</Link>
           </>
         ) : null}
-        <Link href={ROUTES.lobby}>Return to Lobby</Link>
+        {hasReturnToLobby ? (
+          <>
+            <span aria-hidden="true" />
+            <Link href={ROUTES.lobby}>Return to Lobby</Link>
+          </>
+        ) : null}
       </nav>
     </main>
   );
