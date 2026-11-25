@@ -10,7 +10,7 @@ type SceneHotspotBase = {
   id: string;
   label: string;
   description?: string;
-  narrowLabelAlign?: "end";
+  narrowLabelAlign?: "start" | "end";
   bounds: {
     left: number;
     top: number;
@@ -41,6 +41,11 @@ type ArchitecturalSceneProps = {
   alternateImageVisible?: boolean;
   hotspots: SceneHotspot[];
   priority?: boolean;
+};
+
+const narrowLabelClasses = {
+  start: styles.labelAlignStart,
+  end: styles.labelAlignEnd,
 };
 
 export default function ArchitecturalScene({
@@ -102,8 +107,8 @@ export default function ArchitecturalScene({
                   <span className={styles.marker} aria-hidden="true" />
                   <span
                     className={
-                      hotspot.narrowLabelAlign === "end"
-                        ? `${styles.label} ${styles.labelAlignEnd}`
+                      hotspot.narrowLabelAlign
+                        ? `${styles.label} ${narrowLabelClasses[hotspot.narrowLabelAlign]}`
                         : styles.label
                     }
                     aria-hidden="true"

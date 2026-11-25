@@ -74,8 +74,9 @@
 }
 
 @media (min-width: 701px) {
-  .skylineSceneArea {
-    /* Reserve space for the Skyline heading, directory, and fixed footer. */
+  .skylineSceneArea,
+  .solariumSceneArea {
+    /* Reserve space for the heading, directory, and fixed footer. */
     --scene-viewport-clearance: calc(8rem + var(--footer-h) + env(safe-area-inset-bottom));
   }
 }
@@ -304,7 +305,9 @@
   }
 
   .skylineDirectory button,
-  .skylineDirectory a {
+  .skylineDirectory a,
+  .solariumDirectory button,
+  .solariumDirectory a {
     flex-basis: 100%;
   }
 
@@ -312,6 +315,10 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0;
+  }
+
+  .lobbyDirectory > :last-child {
+    grid-column: 1 / -1;
   }
 
   .lobbyDirectory button,

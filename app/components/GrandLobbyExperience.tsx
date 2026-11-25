@@ -190,6 +190,8 @@ export default function GrandLobbyExperience() {
             <span aria-hidden="true" />
             <Link href={ROUTES.skylineLounge}>Skyline Lounge</Link>
             <span aria-hidden="true" />
+            <Link href={ROUTES.solarium}>Solarium</Link>
+            <span aria-hidden="true" />
             <button type="button" onClick={() => showView("exterior")}>
               Step Outside
             </button>

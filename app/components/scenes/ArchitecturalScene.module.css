@@ -145,8 +145,16 @@
 }
 
 @media (max-width: 640px) {
+  .labelAlignStart,
   .labelAlignEnd {
     --hotspot-label-offset: 0%;
+  }
+
+  .labelAlignStart {
+    left: 0;
+  }
+
+  .labelAlignEnd {
     right: 0;
     left: auto;
   }

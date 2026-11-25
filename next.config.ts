@@ -15,7 +15,6 @@ const nextConfig: NextConfig = {
       "/boiler",
       "/chapel",
       "/courtyard",
-      "/solarium",
       "/ballroom",
       "/the-ache/101",
       "/lost-and-found",
