@@ -10,7 +10,7 @@ type SiteRelease = {
 export const siteRelease: SiteRelease = {
   version: "1.3",
   name: "The Solarium",
-  publicationDate: null,
+  publicationDate: "2026-11-25",
 };
 
 export function formatPublicationDate(publicationDate: string) {
